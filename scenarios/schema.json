@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openlogitwin.dev/schema/scenario.schema.json",
+  "title": "OpenLogiTwin Scenario",
+  "description": "Deterministic scenario for the Phase 1 sorting cell (see simulation/scenario_runner.py).",
+  "type": "object",
+  "required": ["duration", "events"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {"type": "string"},
+    "description": {"type": "string"},
+    "cell": {"type": "string"},
+    "dt": {"type": "number", "exclusiveMinimum": 0},
+    "duration": {"type": "number", "exclusiveMinimum": 0},
+    "expect": {"type": "object"},
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["t", "action"],
+        "properties": {
+          "t": {"type": "number", "minimum": 0},
+          "action": {"enum": ["press", "release", "set_estop", "spawn_parcel", "inject_jam", "clear_jam"]},
+          "input": {"enum": ["input.start_pb", "input.stop_pb", "input.reset_pb", "input.estop"]},
+          "destination": {"enum": ["CHUTE_A", "CHUTE_B"]},
+          "value": {"type": "boolean"},
+          "id": {"type": "string"}
+        },
+        "allOf": [
+          {"if": {"properties": {"action": {"const": "press"}}}, "then": {"required": ["input"]}},
+          {"if": {"properties": {"action": {"const": "release"}}}, "then": {"required": ["input"]}},
+          {"if": {"properties": {"action": {"const": "spawn_parcel"}}}, "then": {"required": ["destination"]}},
+          {"if": {"properties": {"action": {"const": "set_estop"}}}, "then": {"required": ["value"]}}
+        ]
+      }
+    }
+  }
+}

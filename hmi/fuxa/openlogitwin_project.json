@@ -1,0 +1,177 @@
+{
+  "projectData": {
+    "charts": [],
+    "devices": {
+      "fab51ca7ca3f851ea": {
+        "enabled": true,
+        "id": "fab51ca7ca3f851ea",
+        "name": "OpenLogiTwin-PLC",
+        "polling": 1000,
+        "property": {
+          "address": "127.0.0.1",
+          "options": "",
+          "port": "15502",
+          "slaveid": "1"
+        },
+        "tags": {
+          "f07032a569b4c5b0d": {
+            "access": "Read/Write",
+            "address": "400001",
+            "description": "Decoded destination: 1=CHUTE_A, 2=CHUTE_B",
+            "id": "f07032a569b4c5b0d",
+            "init": "",
+            "memaddress": "0",
+            "name": "data.parcel_destination",
+            "type": "UInt16",
+            "value": ""
+          },
+          "f1dc97e2366e45116": {
+            "access": "Read",
+            "address": "300001",
+            "description": "Parcels sorted to CHUTE_A",
+            "id": "f1dc97e2366e45116",
+            "init": "",
+            "memaddress": "0",
+            "name": "counter.sorted_chute_a",
+            "type": "UInt16",
+            "value": ""
+          },
+          "f5055fc5fb9645313": {
+            "access": "Read/Write",
+            "address": "000003",
+            "description": "Start pushbutton (momentary)",
+            "id": "f5055fc5fb9645313",
+            "init": "",
+            "memaddress": "2",
+            "name": "input.start_pb",
+            "type": "Bool",
+            "value": ""
+          },
+          "f553dd8c6241b538c": {
+            "access": "Read",
+            "address": "100002",
+            "description": "Diverter extend (extended => CHUTE_A)",
+            "id": "f553dd8c6241b538c",
+            "init": "",
+            "memaddress": "1",
+            "name": "output.diverter_dv_001_extend",
+            "type": "Bool",
+            "value": ""
+          },
+          "f6039592878285ff9": {
+            "access": "Read/Write",
+            "address": "000001",
+            "description": "Photo-eye at infeed / barcode scan point",
+            "id": "f6039592878285ff9",
+            "init": "",
+            "memaddress": "0",
+            "name": "sensor.pe_001",
+            "type": "Bool",
+            "value": ""
+          },
+          "f67cd78e12520586e": {
+            "access": "Read/Write",
+            "address": "000004",
+            "description": "Stop pushbutton (momentary)",
+            "id": "f67cd78e12520586e",
+            "init": "",
+            "memaddress": "3",
+            "name": "input.stop_pb",
+            "type": "Bool",
+            "value": ""
+          },
+          "f88b21351435f5590": {
+            "access": "Read",
+            "address": "100001",
+            "description": "Infeed conveyor motor run",
+            "id": "f88b21351435f5590",
+            "init": "",
+            "memaddress": "0",
+            "name": "output.motor_conv_001_run",
+            "type": "Bool",
+            "value": ""
+          },
+          "f93635915b7fb5847": {
+            "access": "Read",
+            "address": "100003",
+            "description": "Jam fault latched at the diverter",
+            "id": "f93635915b7fb5847",
+            "init": "",
+            "memaddress": "2",
+            "name": "alarm.jam_001",
+            "type": "Bool",
+            "value": ""
+          },
+          "f9909f98daf89560a": {
+            "access": "Read/Write",
+            "address": "000002",
+            "description": "Photo-eye before the diverter",
+            "id": "f9909f98daf89560a",
+            "init": "",
+            "memaddress": "1",
+            "name": "sensor.pe_002",
+            "type": "Bool",
+            "value": ""
+          },
+          "f9e08f39665755b18": {
+            "access": "Read/Write",
+            "address": "000006",
+            "description": "Emergency stop (true = engaged)",
+            "id": "f9e08f39665755b18",
+            "init": "",
+            "memaddress": "5",
+            "name": "input.estop",
+            "type": "Bool",
+            "value": ""
+          },
+          "ff9412c4a63e45268": {
+            "access": "Read",
+            "address": "300002",
+            "description": "Parcels sorted to CHUTE_B",
+            "id": "ff9412c4a63e45268",
+            "init": "",
+            "memaddress": "1",
+            "name": "counter.sorted_chute_b",
+            "type": "UInt16",
+            "value": ""
+          },
+          "ff999ffdb40bc570d": {
+            "access": "Read/Write",
+            "address": "000005",
+            "description": "Reset pushbutton (clears jam)",
+            "id": "ff999ffdb40bc570d",
+            "init": "",
+            "memaddress": "4",
+            "name": "input.reset_pb",
+            "type": "Bool",
+            "value": ""
+          }
+        },
+        "type": "ModbusTCP"
+      }
+    },
+    "hmi": {
+      "layout": {},
+      "views": [
+        {
+          "id": "fdc9697a3d2eb5db7",
+          "items": {},
+          "name": "Control Panel",
+          "profile": {
+            "bkcolor": "#0f172a",
+            "height": 600,
+            "margin": 10,
+            "width": 800
+          },
+          "property": {},
+          "svgcontent": "",
+          "type": "svg",
+          "variables": {}
+        }
+      ]
+    },
+    "texts": [],
+    "version": "1.1.0"
+  },
+  "version": "1.1.0"
+}

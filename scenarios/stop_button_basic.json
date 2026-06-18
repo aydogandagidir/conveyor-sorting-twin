@@ -1,0 +1,15 @@
+{
+  "name": "stop_button_basic",
+  "description": "Stop pushbutton halts the line mid-run; the in-flight parcel never reaches the diverter, so nothing is sorted.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 3.0,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 1.0, "action": "press",        "input": "input.stop_pb"},
+    {"t": 1.1, "action": "release",      "input": "input.stop_pb"}
+  ],
+  "expect": {"sorted_a": 0, "sorted_b": 0, "jam_triggered": false}
+}

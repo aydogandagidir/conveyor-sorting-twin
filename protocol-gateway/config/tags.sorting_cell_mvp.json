@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "cell": "sorting_cell_mvp",
+  "description": "OpenLogiTwin Phase 1 MVP conveyor sorting cell tag registry.",
+  "modbus": {
+    "note": "Gateway is the Modbus master. It WRITES coils/holding_registers (sensors, buttons, barcode) and READS discrete_inputs/input_registers (actuators, alarms, counters). The soft-PLC slave owns the data store.",
+    "server_default": "127.0.0.1:15502"
+  },
+  "destinations": {"CHUTE_A": 1, "CHUTE_B": 2},
+  "tags": [
+    {"name": "sensor.pe_001",                "type": "bool",   "direction": "sim_to_plc", "role": "sensor", "modbus": {"table": "coil",             "address": 0}, "initial": false, "description": "Photo-eye at infeed / barcode scan point"},
+    {"name": "sensor.pe_002",                "type": "bool",   "direction": "sim_to_plc", "role": "sensor", "modbus": {"table": "coil",             "address": 1}, "initial": false, "description": "Photo-eye before the diverter"},
+    {"name": "input.start_pb",               "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil",             "address": 2}, "initial": false, "description": "Start pushbutton (momentary)"},
+    {"name": "input.stop_pb",                "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil",             "address": 3}, "initial": false, "description": "Stop pushbutton (momentary)"},
+    {"name": "input.reset_pb",               "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil",             "address": 4}, "initial": false, "description": "Reset pushbutton (clears jam)"},
+    {"name": "input.estop",                  "type": "bool",   "direction": "sim_to_plc", "role": "safety", "modbus": {"table": "coil",             "address": 5}, "initial": false, "description": "Emergency stop (true = engaged)"},
+    {"name": "data.parcel_destination",      "type": "uint16", "direction": "sim_to_plc", "role": "data",   "modbus": {"table": "holding_register", "address": 0}, "initial": 0,     "description": "Decoded destination: 1=CHUTE_A, 2=CHUTE_B"},
+
+    {"name": "output.motor_conv_001_run",    "type": "bool",   "direction": "plc_to_sim", "role": "actuator", "modbus": {"table": "discrete_input", "address": 0}, "initial": false, "description": "Infeed conveyor motor run"},
+    {"name": "output.diverter_dv_001_extend","type": "bool",   "direction": "plc_to_sim", "role": "actuator", "modbus": {"table": "discrete_input", "address": 1}, "initial": false, "description": "Diverter extend (extended => CHUTE_A)"},
+    {"name": "alarm.jam_001",                "type": "bool",   "direction": "plc_to_sim", "role": "alarm",    "modbus": {"table": "discrete_input", "address": 2}, "initial": false, "description": "Jam fault latched at the diverter"},
+    {"name": "counter.sorted_chute_a",       "type": "uint16", "direction": "plc_to_sim", "role": "counter",  "modbus": {"table": "input_register", "address": 0}, "initial": 0,     "description": "Parcels sorted to CHUTE_A"},
+    {"name": "counter.sorted_chute_b",       "type": "uint16", "direction": "plc_to_sim", "role": "counter",  "modbus": {"table": "input_register", "address": 1}, "initial": 0,     "description": "Parcels sorted to CHUTE_B"}
+  ]
+}

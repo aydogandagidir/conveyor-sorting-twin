@@ -1,0 +1,50 @@
+# OpenLogiTwin deployment profiles.
+#   minimal   -> soft-PLC Modbus slave only (connectivity endpoint)
+#   standard  -> soft-PLC (telemetry is file-based; no extra service)
+#   full      -> soft-PLC + FUXA HMI
+#   integration -> Node-RED (optional flow integration)
+# Usage: docker compose -f deployment/docker-compose.yml --profile full up
+# Not a hardened production deployment; see docs/DEPLOYMENT.md.
+
+services:
+  soft-plc:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    image: openlogitwin/soft-plc:local
+    container_name: openlogitwin-soft-plc
+    environment:
+      OLTWIN_HOST: "0.0.0.0"
+      OLTWIN_PORT: "15502"
+      OLTWIN_REGISTRY: "${OLTWIN_REGISTRY:-conveyor_sorting_cell}"
+      OLTWIN_CONTROL: "${OLTWIN_CONTROL:-control_logic}"
+    ports:
+      - "${MODBUS_PORT:-15502}:15502"
+    profiles: ["minimal", "standard", "full"]
+    restart: unless-stopped
+
+  fuxa:
+    image: frangoteam/fuxa:latest
+    container_name: openlogitwin-fuxa
+    ports:
+      - "${FUXA_PORT:-1881}:1881"
+    volumes:
+      - fuxa-data:/usr/src/app/FUXA/server/_appdata
+    depends_on:
+      - soft-plc
+    profiles: ["full", "hmi"]
+    restart: unless-stopped
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: openlogitwin-nodered
+    ports:
+      - "${NODERED_PORT:-1880}:1880"
+    volumes:
+      - nodered-data:/data
+    profiles: ["integration"]
+    restart: unless-stopped
+
+volumes:
+  fuxa-data:
+  nodered-data:

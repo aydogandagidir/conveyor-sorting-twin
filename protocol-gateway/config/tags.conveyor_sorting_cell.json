@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "cell": "conveyor-sorting-cell",
+  "description": "OpenLogiTwin Phase 0 tag registry for the conveyor sorting cell PoC.",
+  "modbus": {
+    "note": "Gateway is the Modbus master. It WRITES coils/holding_registers (sensors, setpoints) and READS discrete_inputs/input_registers (actuators, metrics). The soft-PLC slave owns the data store.",
+    "server_default": "127.0.0.1:15502"
+  },
+  "tags": [
+    {"name": "sensor.infeed",        "type": "bool",   "direction": "sim_to_plc", "role": "sensor",    "modbus": {"table": "coil",              "address": 0}, "initial": false, "description": "Photoelectric sensor at conveyor infeed"},
+    {"name": "sensor.preDivert",     "type": "bool",   "direction": "sim_to_plc", "role": "sensor",    "modbus": {"table": "coil",              "address": 1}, "initial": false, "description": "Photoelectric sensor at the diverter decision point"},
+    {"name": "sensor.chute1",        "type": "bool",   "direction": "sim_to_plc", "role": "sensor",    "modbus": {"table": "coil",              "address": 2}, "initial": false, "description": "Parcel-present sensor, chute 1"},
+    {"name": "sensor.chute2",        "type": "bool",   "direction": "sim_to_plc", "role": "sensor",    "modbus": {"table": "coil",              "address": 3}, "initial": false, "description": "Parcel-present sensor, chute 2"},
+    {"name": "estop",                "type": "bool",   "direction": "sim_to_plc", "role": "safety",    "modbus": {"table": "coil",              "address": 4}, "initial": false, "description": "Emergency stop (true = engaged)"},
+    {"name": "barcode.destination",  "type": "uint16", "direction": "sim_to_plc", "role": "data",      "modbus": {"table": "holding_register",  "address": 0}, "initial": 0,     "description": "Decoded destination chute (1..3)"},
+
+    {"name": "motor.conveyor",       "type": "bool",   "direction": "plc_to_sim", "role": "actuator",  "modbus": {"table": "discrete_input",    "address": 0}, "initial": false, "description": "Conveyor drive motor run command"},
+    {"name": "diverter.armA",        "type": "bool",   "direction": "plc_to_sim", "role": "actuator",  "modbus": {"table": "discrete_input",    "address": 1}, "initial": false, "description": "Diverter arm to chute 1"},
+    {"name": "diverter.armB",        "type": "bool",   "direction": "plc_to_sim", "role": "actuator",  "modbus": {"table": "discrete_input",    "address": 2}, "initial": false, "description": "Diverter arm to chute 2"},
+    {"name": "fault.jam",            "type": "bool",   "direction": "plc_to_sim", "role": "fault",     "modbus": {"table": "discrete_input",    "address": 3}, "initial": false, "description": "Jam fault latched (auto-detection: Phase 1)"},
+    {"name": "indicator.running",    "type": "bool",   "direction": "plc_to_sim", "role": "indicator", "modbus": {"table": "discrete_input",    "address": 4}, "initial": false, "description": "Stack-light running indicator"},
+    {"name": "throughput.count",     "type": "uint16", "direction": "plc_to_sim", "role": "metric",    "modbus": {"table": "input_register",    "address": 0}, "initial": 0,     "description": "Parcels counted at the divert point"}
+  ]
+}

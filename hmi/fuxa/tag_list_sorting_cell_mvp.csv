@@ -1,0 +1,13 @@
+tag,direction,modbus_table,read_fc,write_fc,address_0based,modicon_ref,data_type,description
+sensor.pe_001,sim_to_plc,coil,1,5,0,000001,bool,Photo-eye at infeed / barcode scan point
+sensor.pe_002,sim_to_plc,coil,1,5,1,000002,bool,Photo-eye before the diverter
+input.start_pb,sim_to_plc,coil,1,5,2,000003,bool,Start pushbutton (momentary)
+input.stop_pb,sim_to_plc,coil,1,5,3,000004,bool,Stop pushbutton (momentary)
+input.reset_pb,sim_to_plc,coil,1,5,4,000005,bool,Reset pushbutton (clears jam)
+input.estop,sim_to_plc,coil,1,5,5,000006,bool,Emergency stop (true = engaged)
+data.parcel_destination,sim_to_plc,holding_register,3,6,0,400001,uint16,"Decoded destination: 1=CHUTE_A, 2=CHUTE_B"
+output.motor_conv_001_run,plc_to_sim,discrete_input,2,,0,100001,bool,Infeed conveyor motor run
+output.diverter_dv_001_extend,plc_to_sim,discrete_input,2,,1,100002,bool,Diverter extend (extended => CHUTE_A)
+alarm.jam_001,plc_to_sim,discrete_input,2,,2,100003,bool,Jam fault latched at the diverter
+counter.sorted_chute_a,plc_to_sim,input_register,4,,0,300001,uint16,Parcels sorted to CHUTE_A
+counter.sorted_chute_b,plc_to_sim,input_register,4,,1,300002,uint16,Parcels sorted to CHUTE_B

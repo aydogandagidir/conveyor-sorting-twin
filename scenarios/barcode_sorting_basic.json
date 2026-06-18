@@ -1,0 +1,20 @@
+{
+  "name": "barcode_sorting_basic",
+  "description": "Deterministic happy-path: four parcels A,B,A,B are scanned, routed by the diverter and counted. No faults.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 9.0,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 2.3, "action": "spawn_parcel", "id": "P2", "destination": "CHUTE_B"},
+    {"t": 4.1, "action": "spawn_parcel", "id": "P3", "destination": "CHUTE_A"},
+    {"t": 5.9, "action": "spawn_parcel", "id": "P4", "destination": "CHUTE_B"}
+  ],
+  "expect": {
+    "sorted_a": 2,
+    "sorted_b": 2,
+    "jam_triggered": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "estop_during_run",
+  "description": "E-stop engaged mid-run stops the conveyor; after release and restart the parcel completes and sorts to CHUTE_A.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 5.0,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 1.0, "action": "set_estop",    "value": true},
+    {"t": 2.0, "action": "set_estop",    "value": false},
+    {"t": 2.2, "action": "press",        "input": "input.start_pb"},
+    {"t": 2.3, "action": "release",      "input": "input.start_pb"}
+  ],
+  "expect": {"sorted_a": 1, "sorted_b": 0, "jam_triggered": false}
+}

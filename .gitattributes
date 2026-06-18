@@ -1,0 +1,16 @@
+# Normalize line endings: avoid CRLF/LF churn across Windows/Linux/macOS.
+* text=auto eol=lf
+
+# Scripts must stay LF (executed on Linux CI / containers).
+*.sh   text eol=lf
+*.py   text eol=lf
+*.gd   text eol=lf
+*.st   text eol=lf
+
+# Windows-only helper keeps CRLF.
+*.ps1  text eol=crlf
+
+# Treat these as binary (no diff/merge munging).
+*.png  binary
+*.jpg  binary
+*.db   binary

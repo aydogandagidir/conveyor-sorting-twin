@@ -1,0 +1,24 @@
+{
+  "name": "jam_recovery_basic",
+  "description": "Parcel P1 jams at pe_002; the PLC latches alarm.jam_001 and stops the motor. The operator presses reset (clearing the stuck parcel), restarts, and parcel P2 sorts normally to CHUTE_B.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 8.0,
+  "events": [
+    {"t": 0.0,  "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1,  "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5,  "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 2.15, "action": "inject_jam",   "id": "P1"},
+    {"t": 4.0,  "action": "press",        "input": "input.reset_pb"},
+    {"t": 4.1,  "action": "release",      "input": "input.reset_pb"},
+    {"t": 4.5,  "action": "press",        "input": "input.start_pb"},
+    {"t": 4.6,  "action": "release",      "input": "input.start_pb"},
+    {"t": 4.8,  "action": "spawn_parcel", "id": "P2", "destination": "CHUTE_B"}
+  ],
+  "expect": {
+    "jam_triggered": true,
+    "jam_cleared": true,
+    "sorted_a": 0,
+    "sorted_b": 1
+  }
+}

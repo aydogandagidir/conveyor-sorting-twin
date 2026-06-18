@@ -1,0 +1,21 @@
+; OpenLogiTwin — Godot 4.x project (minimal scaffold).
+;
+; Build the sorting-cell scene in the Godot editor following docs/GODOT_SCENE.md
+; (Conveyor, PE_001@20cm, PE_002@80cm, Diverter@90cm, ChuteA/ChuteB, Parcel).
+; modbus_client.gd / cell_bridge.gd connect to the soft-PLC (scripts/run_soft_plc.py)
+; over Modbus TCP and drive the scene from the same tag contract as scene_model.py.
+;
+; STATUS: scaffold — verify by opening in Godot 4.x. The .tscn scene is authored in
+; the editor (not committed), per the design doc.
+
+config_version=5
+
+[application]
+
+config/name="OpenLogiTwin Sorting Cell"
+config/features=PackedStringArray("4.2")
+run/main_scene=""
+
+[autoload]
+
+CellBridge="*res://cell_bridge.gd"

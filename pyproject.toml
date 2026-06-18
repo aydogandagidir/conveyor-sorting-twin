@@ -1,0 +1,24 @@
+[project]
+name = "openlogitwin"
+version = "0.2.0"
+description = "OpenLogiTwin — conveyor sorting cell simulator (intralogistics PLC training / virtual commissioning)"
+requires-python = ">=3.9"
+# Phase 0 and Phase 1 require NO third-party runtime dependencies (stdlib only).
+dependencies = []
+
+[project.optional-dependencies]
+# Installed only for the hardening track (Phase 1.5+); not needed to run/verify Phase 0/1.
+dev = [
+  "pytest>=7",        # Phase 1.5e: pytest migration
+  "jsonschema>=4",    # optional formal schema validation
+  "pymodbus>=3.6",    # Phase 2: pymodbus adapter (kept alongside the in-repo Modbus)
+]
+
+# Tested on Python 3.9, 3.10, 3.11, 3.13 (see .github/workflows/verify.yml).
+
+[tool.pytest.ini_options]
+# `pytest tests/` collects test_*.py (incl. test_phase_gates.py, which runs the
+# verify_phase0/1 gates). The standalone runner `python scripts/run_tests.py`
+# is the zero-dependency equivalent used in CI.
+testpaths = ["tests"]
+python_files = ["test_*.py"]

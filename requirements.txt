@@ -1,0 +1,8 @@
+# OpenLogiTwin — Phase 0 requires NO third-party packages (Python stdlib only).
+# Verified on Python 3.13; should run on 3.9+.
+#
+# Optional / future (NOT needed for Phase 0 verification):
+#   pymodbus>=3.6      # alternative Modbus transport adapter (see ADR-0002)
+#   jsonschema>=4.0    # formal validation against schema/tag_registry.schema.json
+#   paho-mqtt>=2.0     # Phase 3 MQTT telemetry
+#   asyncua>=1.0       # OPC UA path (second protocol priority)

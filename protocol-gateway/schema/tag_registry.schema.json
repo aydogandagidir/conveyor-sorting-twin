@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openlogitwin.dev/schema/tag_registry.schema.json",
+  "title": "OpenLogiTwin Tag Registry",
+  "description": "Schema for the tag mapping that binds named tags to Modbus addresses and data-flow direction.",
+  "type": "object",
+  "required": ["version", "tags"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {"type": "string"},
+    "cell": {"type": "string"},
+    "description": {"type": "string"},
+    "modbus": {"type": "object"},
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/definitions/tag"}
+    }
+  },
+  "definitions": {
+    "tag": {
+      "type": "object",
+      "required": ["name", "type", "direction", "modbus"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "pattern": "^[A-Za-z0-9_.]+$"},
+        "type": {"enum": ["bool", "uint16"]},
+        "direction": {"enum": ["sim_to_plc", "plc_to_sim"]},
+        "role": {"type": "string"},
+        "initial": {"type": ["boolean", "integer", "null"]},
+        "invert": {"type": "boolean", "description": "bool tags only: PLC-side I/O inversion (NC fail-safe)"},
+        "description": {"type": "string"},
+        "modbus": {
+          "type": "object",
+          "required": ["table", "address"],
+          "additionalProperties": false,
+          "properties": {
+            "table": {"enum": ["coil", "discrete_input", "holding_register", "input_register"]},
+            "address": {"type": "integer", "minimum": 0, "maximum": 65535}
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Telemetry artifacts (databases + generated exports)
+*.db
+*.sqlite
+*.sqlite3
+telemetry/exports/
+
+# OS / editor / local tooling
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/
+
+# Local env files (commit .env.example, ignore real .env) + logs
+.env
+deployment/.env
+*.log
+
+# Godot (Phase 1)
+simulation/godot-project/.godot/
+simulation/godot-project/export/
