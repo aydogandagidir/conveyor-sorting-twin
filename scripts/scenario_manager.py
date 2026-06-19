@@ -22,9 +22,29 @@ for _sub in ("protocol-gateway", "plc", "telemetry", "simulation"):
     sys.path.insert(0, os.path.join(_ROOT, _sub))
 
 from scenario_runner import ScenarioRunner, validate_scenario  # noqa: E402
+import control_logic_mvp       # noqa: E402
+import control_logic_advanced  # noqa: E402
 
-REGISTRY = os.path.join(_ROOT, "protocol-gateway", "config", "tags.sorting_cell_mvp.json")
+_CONFIG = os.path.join(_ROOT, "protocol-gateway", "config")
+REGISTRY = os.path.join(_CONFIG, "tags.sorting_cell_mvp.json")   # default cell
 SCEN_DIR = os.path.join(_ROOT, "scenarios")
+
+# A scenario's "cell" field selects the runner profile.
+CELL_PROFILES = {
+    "sorting_cell_mvp": {
+        "registry": os.path.join(_CONFIG, "tags.sorting_cell_mvp.json"),
+        "control": control_logic_mvp, "dest_strategy": "single",
+    },
+    "sorting_cell_advanced": {
+        "registry": os.path.join(_CONFIG, "tags.sorting_cell_advanced.json"),
+        "control": control_logic_advanced, "dest_strategy": "fifo_ring",
+    },
+}
+
+
+def _profile(scenario):
+    return CELL_PROFILES.get(scenario.get("cell", "sorting_cell_mvp"),
+                             CELL_PROFILES["sorting_cell_mvp"])
 
 
 def scenario_files():
@@ -45,10 +65,12 @@ def resolve(name):
 
 
 def run_and_check(path, export_dir=None, use_modbus=True):
-    """Run a scenario; return (result, expect, mismatches)."""
+    """Run a scenario on its cell profile; return (result, expect, mismatches)."""
     with open(path, encoding="utf-8") as f:
         scenario = json.load(f)
-    runner = ScenarioRunner(REGISTRY, use_modbus=use_modbus)
+    prof = _profile(scenario)
+    runner = ScenarioRunner(prof["registry"], use_modbus=use_modbus,
+                            control=prof["control"], dest_strategy=prof["dest_strategy"])
     result = runner.run(scenario)
     if export_dir:
         name = os.path.splitext(os.path.basename(path))[0]

@@ -82,9 +82,17 @@ def validate_scenario(scenario) -> bool:
 
 
 class ScenarioRunner:
-    def __init__(self, registry_path, telemetry_db=None, use_modbus=True):
+    def __init__(self, registry_path, telemetry_db=None, use_modbus=True,
+                 control=None, dest_strategy="single"):
+        # `control` defaults to the MVP program; `dest_strategy` is how parcel
+        # destinations reach the PLC: "single" (one shared data.parcel_destination,
+        # MVP) or "fifo_ring" (per-parcel data.dest_ring_* enqueued on scan, ADR-0005).
         self.registry = TagRegistry.from_file(registry_path)
-        self.plc = SoftPlc(self.registry, scan_interval=0.0, control=control_logic_mvp)
+        control = control or control_logic_mvp
+        self.dest_strategy = dest_strategy
+        self._ring_size = getattr(control, "RING_SIZE", 8)
+        self._ring_write_idx = 0
+        self.plc = SoftPlc(self.registry, scan_interval=0.0, control=control)
         if use_modbus:
             port = self.plc.serve("127.0.0.1", 0)
             self.client = ModbusTCPClient("127.0.0.1", port).connect()
@@ -108,6 +116,7 @@ class ScenarioRunner:
         duration = float(scenario["duration"])
         self.tel.scenario = scenario.get("name", "phase1")
         self.scene = SceneModel()
+        self._ring_write_idx = 0
         inputs = dict(_BUTTON_DEFAULTS)
         self.gw.initialize_inputs()
 
@@ -138,7 +147,8 @@ class ScenarioRunner:
             stags = self.scene.sensor_tags()
             self.gw.write_tag("sensor.pe_001", stags["sensor.pe_001"])
             self.gw.write_tag("sensor.pe_002", stags["sensor.pe_002"])
-            self.gw.write_tag("data.parcel_destination", stags["data.parcel_destination"])
+            if self.dest_strategy == "single":
+                self.gw.write_tag("data.parcel_destination", stags["data.parcel_destination"])
             for name, value in inputs.items():
                 self.gw.write_tag(name, value)
 
@@ -169,7 +179,14 @@ class ScenarioRunner:
             if divert:
                 result["divert_on_ticks"] += 1
 
-            self.scene.step(dt, motor, divert)
+            step_events = self.scene.step(dt, motor, divert)
+            if self.dest_strategy == "fifo_ring":
+                # Enqueue each scanned parcel's destination into the FIFO ring.
+                for ev in step_events:
+                    if ev[0] == "scan":
+                        slot = self._ring_write_idx % self._ring_size
+                        self.gw.write_tag(f"data.dest_ring_{slot}", ev[2])
+                        self._ring_write_idx += 1
             prev_motor, prev_jam = motor, jam
 
         result["scene_chute_a"] = list(self.scene.chute_a)

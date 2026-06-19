@@ -1,0 +1,20 @@
+{
+  "name": "dense_sort_advanced",
+  "description": "Eight parcels spaced 0.4 s apart (about three in flight between the scan point and the diverter) routed correctly via the per-parcel FIFO ring (ADR-0005). The single-register MVP cell would mis-route this stream.",
+  "cell": "sorting_cell_advanced",
+  "dt": 0.05,
+  "duration": 6.0,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 0.9, "action": "spawn_parcel", "id": "P2", "destination": "CHUTE_B"},
+    {"t": 1.3, "action": "spawn_parcel", "id": "P3", "destination": "CHUTE_A"},
+    {"t": 1.7, "action": "spawn_parcel", "id": "P4", "destination": "CHUTE_B"},
+    {"t": 2.1, "action": "spawn_parcel", "id": "P5", "destination": "CHUTE_A"},
+    {"t": 2.5, "action": "spawn_parcel", "id": "P6", "destination": "CHUTE_B"},
+    {"t": 2.9, "action": "spawn_parcel", "id": "P7", "destination": "CHUTE_A"},
+    {"t": 3.3, "action": "spawn_parcel", "id": "P8", "destination": "CHUTE_B"}
+  ],
+  "expect": {"sorted_a": 4, "sorted_b": 4, "jam_triggered": false}
+}

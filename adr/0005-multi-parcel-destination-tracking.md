@@ -1,6 +1,9 @@
 # ADR-0005 — Multi-parcel destination tracking (FIFO ring)
 
-- Status: Accepted (prototype); production rollout in Phase 2
+- Status: Accepted — prototype proven (1.5f) and **rolled out** (Stage 2):
+  `tags.sorting_cell_advanced.json` + cell-aware `ScenarioRunner`/`scenario_manager`
+  (`dest_strategy="fifo_ring"`) + `scenarios/dense_sort_advanced.json` + `tests/test_advanced_cell.py`
+  (advanced routes 8 dense parcels 4/4; the MVP single register mis-routes the same stream 2/6).
 - Date: 2026-06-17
 - Phase: 1.5 (Hardening — design & prototype)
 

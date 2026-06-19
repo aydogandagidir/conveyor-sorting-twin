@@ -1,0 +1,33 @@
+{
+  "version": "0.3.0",
+  "cell": "sorting_cell_advanced",
+  "description": "OpenLogiTwin advanced sorting cell: per-parcel destination via an 8-slot FIFO ring (ADR-0005). Same I/O as sorting_cell_mvp, but data.parcel_destination is replaced by data.dest_ring_0..7 so densely-spaced parcels route correctly.",
+  "modbus": {
+    "note": "Gateway is the Modbus master. The plant enqueues each parcel's destination into the ring (holding registers) as it is scanned at pe_001; the PLC dequeues on the pe_002 rising edge. Outputs identical to sorting_cell_mvp.",
+    "server_default": "127.0.0.1:15502"
+  },
+  "destinations": {"CHUTE_A": 1, "CHUTE_B": 2},
+  "tags": [
+    {"name": "sensor.pe_001",                "type": "bool",   "direction": "sim_to_plc", "role": "sensor", "modbus": {"table": "coil", "address": 0}, "initial": false, "description": "Photo-eye at infeed / barcode scan point"},
+    {"name": "sensor.pe_002",                "type": "bool",   "direction": "sim_to_plc", "role": "sensor", "modbus": {"table": "coil", "address": 1}, "initial": false, "description": "Photo-eye before the diverter"},
+    {"name": "input.start_pb",               "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil", "address": 2}, "initial": false, "description": "Start pushbutton (momentary)"},
+    {"name": "input.stop_pb",                "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil", "address": 3}, "initial": false, "description": "Stop pushbutton (momentary)"},
+    {"name": "input.reset_pb",               "type": "bool",   "direction": "sim_to_plc", "role": "input",  "modbus": {"table": "coil", "address": 4}, "initial": false, "description": "Reset pushbutton (clears jam)"},
+    {"name": "input.estop",                  "type": "bool",   "direction": "sim_to_plc", "role": "safety", "modbus": {"table": "coil", "address": 5}, "initial": false, "description": "Emergency stop (true = engaged)"},
+
+    {"name": "data.dest_ring_0",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 0}, "initial": 0, "description": "FIFO destination ring slot 0"},
+    {"name": "data.dest_ring_1",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 1}, "initial": 0, "description": "FIFO destination ring slot 1"},
+    {"name": "data.dest_ring_2",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 2}, "initial": 0, "description": "FIFO destination ring slot 2"},
+    {"name": "data.dest_ring_3",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 3}, "initial": 0, "description": "FIFO destination ring slot 3"},
+    {"name": "data.dest_ring_4",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 4}, "initial": 0, "description": "FIFO destination ring slot 4"},
+    {"name": "data.dest_ring_5",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 5}, "initial": 0, "description": "FIFO destination ring slot 5"},
+    {"name": "data.dest_ring_6",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 6}, "initial": 0, "description": "FIFO destination ring slot 6"},
+    {"name": "data.dest_ring_7",             "type": "uint16", "direction": "sim_to_plc", "role": "data", "modbus": {"table": "holding_register", "address": 7}, "initial": 0, "description": "FIFO destination ring slot 7"},
+
+    {"name": "output.motor_conv_001_run",    "type": "bool",   "direction": "plc_to_sim", "role": "actuator", "modbus": {"table": "discrete_input", "address": 0}, "initial": false, "description": "Infeed conveyor motor run"},
+    {"name": "output.diverter_dv_001_extend","type": "bool",   "direction": "plc_to_sim", "role": "actuator", "modbus": {"table": "discrete_input", "address": 1}, "initial": false, "description": "Diverter extend (extended => CHUTE_A)"},
+    {"name": "alarm.jam_001",                "type": "bool",   "direction": "plc_to_sim", "role": "alarm",    "modbus": {"table": "discrete_input", "address": 2}, "initial": false, "description": "Jam fault latched at the diverter"},
+    {"name": "counter.sorted_chute_a",       "type": "uint16", "direction": "plc_to_sim", "role": "counter",  "modbus": {"table": "input_register", "address": 0}, "initial": 0, "description": "Parcels sorted to CHUTE_A"},
+    {"name": "counter.sorted_chute_b",       "type": "uint16", "direction": "plc_to_sim", "role": "counter",  "modbus": {"table": "input_register", "address": 1}, "initial": 0, "description": "Parcels sorted to CHUTE_B"}
+  ]
+}
