@@ -37,11 +37,13 @@ run by `scripts/scenario_manager.py`.
 `sorted_a`, `sorted_b`, `jam_triggered`, `jam_cleared`, `motor_on_ticks`, `ticks`,
 `divert_on_ticks` (see `ScenarioRunner.run`).
 
-## Timing model (single shared destination register)
-`tags.sorting_cell_mvp.json` carries one `data.parcel_destination`, latched at pe_002. Space
-parcels so only **one** is between the scan point (pe_001 @20 cm) and the diverter (90 cm) at a
-time — at 50 cm/s that's ≥ ~1.6 s apart. Denser streams need the FIFO ring
-(`control_logic_advanced.py`, ADR-0005); see `tests/test_multi_parcel_prototype.py`.
+## Cells (the `cell` field selects the runner profile)
+- `sorting_cell_mvp` (default) — one shared `data.parcel_destination` latched at pe_002. Space
+  parcels so only **one** is between the scan point (pe_001 @20 cm) and the diverter (90 cm) at a
+  time — at 50 cm/s that is ≥ ~1.6 s apart.
+- `sorting_cell_advanced` — per-parcel destinations via an 8-slot **FIFO ring** (ADR-0005), so
+  densely-spaced parcels route correctly (e.g. `scenarios/dense_sort_advanced.json`: 8 parcels at
+  0.4 s, ~3 in flight). The scenario manager picks the cell profile automatically from `cell`.
 
 Geometry: speed 50 cm/s, parcel 10 cm, pe_001 @20, pe_002 @80, diverter @90, end @120
 (see `simulation/scene_model.py`). A parcel reaches pe_002 ~1.6 s after spawn and routes ~1.8 s after.

@@ -49,6 +49,13 @@ Deferred (per decision): Godot 3D wiring; real OpenPLC ST/LD migration.
 - [x] Training docs: `TRAINER_GUIDE.md`, `FAULT_SCENARIOS.md`, `SCENARIOS.md` — 3b.
 - [x] Docs polish: `ROADMAP.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE` (MIT) — 3d.
 
+## Done — Stage 2 (multi-parcel FIFO cell rollout, ADR-0005)
+- [x] Promoted the FIFO-ring prototype to a first-class cell: `tags.sorting_cell_advanced.json`.
+- [x] Cell-aware `ScenarioRunner` (`control` + `dest_strategy`) and `scenario_manager`
+      (`cell` field → profile); MVP path unchanged (determinism preserved).
+- [x] `scenarios/dense_sort_advanced.json` (8 parcels @0.4 s) + `tests/test_advanced_cell.py`
+      (advanced 4/4 vs MVP single-register 2/6 on the same dense stream).
+
 ## Best-effort (verify in external tool) / deferred
 - [~] FUXA project generator (`generate_fuxa_project.py`, structure-tested) + Godot 4.x
       scaffold (project + GDScript client/bridge). Import into FUXA / open in Godot to verify.
