@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenLogiTwin — Conveyor Sorting Cell Digital Twin</title>
+<meta name="description" content="A narrow, technically credible digital twin of a conveyor sorting cell for PLC training and virtual commissioning. Real Modbus TCP / OPC UA / MQTT, deterministic simulation, stdlib core.">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3;
+    --muted:#9198a1; --accent:#38bdf8; --accent2:#3fb950; --code:#0b0f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  header{padding:64px 0 32px;text-align:center;border-bottom:1px solid var(--border)}
+  .eyebrow{color:var(--accent2);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+  h1{font-size:44px;margin:.2em 0 .1em;letter-spacing:-.02em}
+  .tagline{font-size:20px;color:var(--muted);margin:0 0 18px}
+  .lede{max-width:680px;margin:0 auto 24px;color:var(--fg)}
+  .badges{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:18px 0 26px}
+  .badges img{height:20px}
+  .cta{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
+    font-weight:600;border:1px solid var(--border)}
+  .cta.primary{background:var(--accent);color:#03121c;border-color:var(--accent)}
+  .cta.ghost{background:var(--panel);color:var(--fg)}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  section{padding:42px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .card .ic{font-size:20px;margin-bottom:8px}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:16px;
+    overflow:auto;font-size:13.5px;line-height:1.5}
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+  .docs{display:flex;flex-wrap:wrap;gap:8px 18px}
+  .docs a{font-size:14px}
+  footer{padding:28px 0 56px;text-align:center;color:var(--muted);font-size:13px}
+  .note{color:var(--muted);font-size:13px;text-align:center;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Digital Twin · Intralogistics</div>
+    <h1>OpenLogiTwin</h1>
+    <p class="tagline">Conveyor Sorting Cell — a virtual PLC commissioning rig</p>
+    <p class="lede">A narrow, demo-ready, <strong>technically credible</strong> digital twin of a
+      single conveyor sorting cell: real industrial protocols, a deterministic plant model, and a
+      soft-PLC you can swap for OpenPLC. Built for PLC training and virtual commissioning — not a
+      generic factory sim.</p>
+    <div class="badges">
+      <img alt="CI" src="https://github.com/aydogandagidir/conveyor-sorting-twin/actions/workflows/verify.yml/badge.svg">
+      <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
+      <img alt="Python" src="https://img.shields.io/badge/python-3.9%E2%80%933.13-blue.svg">
+      <img alt="Core: stdlib only" src="https://img.shields.io/badge/core-stdlib%20only-success.svg">
+    </div>
+    <div class="cta-row">
+      <a class="cta primary" href="demo_report.html">▶ View the live demo report</a>
+      <a class="cta ghost" href="https://github.com/aydogandagidir/conveyor-sorting-twin">★ GitHub repository</a>
+    </div>
+    <p class="note">The demo report is regenerated from the scenario suite on every push to <code>main</code>.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>What's inside</h2>
+    <div class="grid">
+      <div class="card"><div class="ic">🔌</div><h3>Real protocols</h3>
+        <p>Hand-rolled, standards-compliant <strong>Modbus TCP</strong> server/client (+ pymodbus),
+          real <strong>OPC UA</strong> (asyncua), and <strong>MQTT</strong> telemetry.</p></div>
+      <div class="card"><div class="ic">🎯</div><h3>Deterministic</h3>
+        <p>Fixed-<code>dt</code> lock-step plant model. Scenarios are bit-reproducible — same input,
+          same result, every run.</p></div>
+      <div class="card"><div class="ic">🧩</div><h3>PLC-ready</h3>
+        <p>Swappable soft-PLC with a sample IEC 61131-3 <strong>Structured Text</strong> program for
+          OpenPLC. A tag registry is the single source of truth.</p></div>
+      <div class="card"><div class="ic">📦</div><h3>Multi-parcel FIFO cell</h3>
+        <p>An 8-slot destination ring sorts dense streams correctly where a single-register cell
+          mis-routes them.</p></div>
+      <div class="card"><div class="ic">📊</div><h3>Telemetry</h3>
+        <p>Every cycle, sort, fault and state change logged to SQLite with CSV/JSON export and an
+          optional live MQTT sink.</p></div>
+      <div class="card"><div class="ic">✅</div><h3>Tested &amp; cheap</h3>
+        <p>19 dual-mode test files; CI matrix across Python 3.9–3.13 on Ubuntu &amp; Windows. The core
+          needs zero third-party packages.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <pre><code>git clone https://github.com/aydogandagidir/conveyor-sorting-twin
+cd conveyor-sorting-twin
+
+python scripts/run_tests.py              # the full suite (stdlib only)
+python scripts/scenario_manager.py run-all   # run every scenario with expectations
+python scripts/run_full_demo.py --export-dir=_site   # build this demo report</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Documentation</h2>
+    <div class="docs">
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/ROADMAP.md">Roadmap</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/SCENARIOS.md">Scenarios</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/FAULT_SCENARIOS.md">Fault scenarios</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/PERFORMANCE.md">Performance</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/DEPLOYMENT.md">Deployment</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/blob/main/docs/TRAINER_GUIDE.md">Trainer guide</a>
+      <a href="https://github.com/aydogandagidir/conveyor-sorting-twin/tree/main/adr">Decisions (ADRs)</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    OpenLogiTwin · MIT licensed ·
+    <a href="https://github.com/aydogandagidir/conveyor-sorting-twin">github.com/aydogandagidir/conveyor-sorting-twin</a>
+  </div>
+</footer>
+</body>
+</html>
