@@ -9,11 +9,17 @@
     - diverter latch cleared on E-stop / Stop (never energized while stopped)
 
   Line references below point at the equivalent control_logic_mvp.py logic.
-  STATUS: provided as-is; validate in the OpenPLC editor before deploying.
+  STATUS: compiles and runs on OpenPLC Runtime v3 (verified 2026-06-20).
+  NOTE — two MatIEC requirements proven during that run:
+    * located (AT %…) and internal variables must be in SEPARATE VAR blocks (mixing them in one
+      block fails with "invalid located variable declaration");
+    * a CONFIGURATION/RESOURCE/TASK is needed to compile stand-alone (appended below).
+  OpenPLC's fixed Modbus map differs from the soft-PLC's: %QX→coils, %IX→discrete inputs,
+  %IW→input regs, %QW→holding regs. See plc/examples/README.md.
 *)
 PROGRAM sorting_cell_mvp
 VAR
-    (* Inputs (master-writable coils / holding register) *)
+    (* Inputs: %IX bits + %IW word *)
     pe_001    AT %IX0.0 : BOOL;   (* infeed / barcode scan photo-eye *)
     pe_002    AT %IX0.1 : BOOL;   (* pre-diverter photo-eye *)
     start_pb  AT %IX0.2 : BOOL;
@@ -21,13 +27,15 @@ VAR
     reset_pb  AT %IX0.4 : BOOL;
     estop_in  AT %IX0.5 : BOOL;   (* NC fail-safe wire: TRUE = healthy *)
     barcode   AT %IW0   : UINT;   (* 1 = CHUTE_A, 2 = CHUTE_B *)
-    (* Outputs (master-readable discrete inputs / input registers) *)
+    (* Outputs: %QX bits + %QW words *)
     motor     AT %QX0.0 : BOOL;
     diverter  AT %QX0.1 : BOOL;   (* extended => route to CHUTE_A *)
     jam       AT %QX0.2 : BOOL;
     count_a   AT %QW0   : UINT;
     count_b   AT %QW1   : UINT;
-    (* Internal state *)
+END_VAR
+VAR
+    (* Internal state — kept in a separate VAR block from the located I/O above (MatIEC) *)
     running       : BOOL;
     pending       : UINT;         (* 0 = none, 1 = A, 2 = B *)
     estop_engaged : BOOL;
@@ -95,3 +103,11 @@ END_VAR
         diverter := FALSE;
     END_IF;
 END_PROGRAM
+
+(* Stand-alone configuration so iec2c/OpenPLC can compile this file directly. *)
+CONFIGURATION Config0
+  RESOURCE Res0 ON PLC
+    TASK Main(INTERVAL := T#50ms, PRIORITY := 0);
+    PROGRAM Inst0 WITH Main : sorting_cell_mvp;
+  END_RESOURCE
+END_CONFIGURATION

@@ -25,7 +25,8 @@ def test_both_examples_present_and_wellformed():
         assert src.strip(), f"{name} is empty"
         assert src.count("END_PROGRAM") == 1, f"{name}: expected exactly one END_PROGRAM"
         assert "PROGRAM " in src, f"{name}: missing PROGRAM header"
-        assert src.rstrip().endswith("END_PROGRAM"), f"{name}: truncated (no trailing END_PROGRAM)"
+        assert src.rstrip().endswith(("END_PROGRAM", "END_CONFIGURATION")), \
+            f"{name}: truncated (no trailing END_PROGRAM/END_CONFIGURATION)"
         assert "VAR" in src and "END_VAR" in src, f"{name}: missing VAR block"
 
 
