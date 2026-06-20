@@ -31,6 +31,7 @@ SUITE = [
     "tests/test_fuxa_project.py",        # Phase 2/3 generated FUXA project structure
     "tests/test_advanced_cell.py",       # multi-parcel FIFO cell promoted (ADR-0005)
     "tests/test_barcode.py",             # per-parcel barcode simulator + EAN-13 (A4)
+    "tests/test_performance.py",         # throughput/determinism baseline (A5)
 ]
 
 

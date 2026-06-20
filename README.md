@@ -88,6 +88,7 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 | Roadmap · Changelog | [`docs/ROADMAP.md`](docs/ROADMAP.md) · [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
 | Tag map · Scenarios · Faults | [`docs/TAG_MAP_MVP.md`](docs/TAG_MAP_MVP.md) · [`docs/SCENARIOS.md`](docs/SCENARIOS.md) · [`docs/FAULT_SCENARIOS.md`](docs/FAULT_SCENARIOS.md) |
 | Deployment | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
+| Performance | [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) |
 | Decisions (ADRs) | [`adr/`](adr) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
