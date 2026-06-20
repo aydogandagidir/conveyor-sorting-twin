@@ -17,9 +17,10 @@ _FIELDS = ["id", "ts_iso", "ts_unix", "scenario", "event_type", "tag", "value", 
 
 
 class TelemetryLogger:
-    def __init__(self, db_path: str, scenario: str = "phase0"):
+    def __init__(self, db_path: str, scenario: str = "phase0", sink=None):
         self.db_path = db_path
         self.scenario = scenario
+        self.sink = sink  # optional callable(event_dict), e.g. an MQTT publisher
         parent = os.path.dirname(os.path.abspath(db_path))
         if parent:
             os.makedirs(parent, exist_ok=True)
@@ -53,6 +54,15 @@ class TelemetryLogger:
         except sqlite3.Error as exc:
             # Telemetry must never crash the simulation; surface and continue.
             print(f"[telemetry] write failed ({event_type}): {exc}", file=sys.stderr)
+        if self.sink is not None:
+            try:
+                self.sink({
+                    "ts_iso": iso, "ts_unix": now, "scenario": self.scenario,
+                    "event_type": event_type, "tag": tag,
+                    "value": None if value is None else str(value), "detail": detail,
+                })
+            except Exception as exc:  # a sink (e.g. MQTT) must never crash the run
+                print(f"[telemetry] sink failed ({event_type}): {exc}", file=sys.stderr)
 
     def log_tag_change(self, tag: str, old, new, detail=None):
         self.log_event("tag_change", tag=tag, value=new, detail=detail or f"{old} -> {new}")

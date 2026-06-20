@@ -11,7 +11,8 @@ TODO (replace stub):
 See adr/0002 (protocol roadmap: Modbus first, OPC UA second, MQTT third).
 """
 
-_MSG = "MQTT adapter is a Phase 3 stub — not implemented yet (see adr/0002 protocol roadmap)"
+_MSG = ("MQTT is not a request/response gateway transport — it is implemented as a telemetry "
+        "sink at telemetry/mqtt_publisher.py (MqttTelemetryPublisher). See ADR-0007.")
 
 
 class MqttClientStub:
