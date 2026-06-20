@@ -9,7 +9,7 @@ kinds:
   'modbus'   in-repo Modbus TCP client (default, zero-dep)
   'local'    in-process store client (needs store=...)
   'pymodbus' pymodbus-backed client (optional: pip install pymodbus)
-  'opcua'    OPC UA adapter — Phase 3 stub
+  'opcua'    OPC UA adapter (optional: pip install asyncua)
   'mqtt'     MQTT adapter — Phase 3 stub
 """
 
@@ -25,8 +25,8 @@ def make_client(kind: str = "modbus", **kwargs):
         from adapters.pymodbus_adapter import PymodbusClient
         return PymodbusClient(**kwargs)
     if kind == "opcua":
-        from adapters.opcua_stub import OpcUaClientStub
-        return OpcUaClientStub(**kwargs)
+        from adapters.opcua_adapter import OpcUaClient
+        return OpcUaClient(**kwargs)
     if kind == "mqtt":
         from adapters.mqtt_stub import MqttClientStub
         return MqttClientStub(**kwargs)

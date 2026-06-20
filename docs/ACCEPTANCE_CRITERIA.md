@@ -138,7 +138,8 @@ python -m pytest tests/ -q      # green (pytest 46 passed, 2 skipped at time of 
       (`list` / `validate` / `run` / `run-all`, checks each `expect`).
 - [x] Start/stop/reset (+ E-stop) controls — exercised via scenarios/CLI.
 - [x] Protocol extensibility (per decision) — `protocol-gateway/protocol_factory.py`
-      + `adapters/pymodbus_adapter.py` (verified vs pymodbus 3.13) + OPC UA/MQTT stubs.
+      + `adapters/pymodbus_adapter.py` (verified vs pymodbus 3.13) + **real OPC UA adapter**
+      (`adapters/opcua_adapter.py`, verified vs asyncua 2.0, ADR-0006) + MQTT stub.
 
 ### Verified
 ```

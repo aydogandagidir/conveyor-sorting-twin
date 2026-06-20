@@ -83,6 +83,6 @@ Deferred (per decision): Godot 3D wiring; real OpenPLC ST/LD migration.
 - [ ] Demo script + exportable results.
 
 ## Protocol roadmap (per stack direction)
-1. Modbus TCP — **done (Phase 0)**.
-2. OPC UA — second.
-3. MQTT telemetry — third (after core loop is solid).
+1. Modbus TCP — **done** (in-repo + pymodbus adapter).
+2. OPC UA — **done** (real `asyncua` adapter, ADR-0006).
+3. MQTT telemetry — next (third priority; currently a stub).

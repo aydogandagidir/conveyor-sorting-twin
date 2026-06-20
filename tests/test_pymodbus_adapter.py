@@ -56,14 +56,13 @@ def test_factory_unknown_kind_raises():
     raise AssertionError("expected ValueError for unknown kind")
 
 
-def test_opcua_and_mqtt_stubs_raise():
-    for kind in ("opcua", "mqtt"):
-        client = make_client(kind)
-        try:
-            client.connect()
-        except NotImplementedError:
-            continue
-        raise AssertionError(f"{kind} stub should raise NotImplementedError on connect()")
+def test_mqtt_stub_raises():
+    client = make_client("mqtt")
+    try:
+        client.connect()
+    except NotImplementedError:
+        return
+    raise AssertionError("mqtt stub should raise NotImplementedError on connect()")
 
 
 # --- pymodbus interop (skips without pymodbus) ------------------------------
