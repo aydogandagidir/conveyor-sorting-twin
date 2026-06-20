@@ -21,6 +21,10 @@ formal release tags). Dates are UTC.
 ## [Unreleased]
 
 ### Added
+- **Per-parcel barcode simulator** (`simulation/barcode.py`): a parcel can be injected by
+  `barcode` instead of a raw chute; `BarcodeDecoder` maps it to a destination (explicit routes →
+  valid **EAN-13** parity → alpha prefix) and a `barcode_scan` telemetry event is logged at the
+  scan point. Scenario `barcode_routing` + `tests/test_barcode.py`.
 - **Scenario gallery + control robustness**: scenarios `back_to_back_sort`, `motor_never_starts`,
   `two_jams`, `estop_during_divert`. uint16 counters now wrap explicitly (match the Modbus
   register); E-stop/Stop void the in-flight routing decision (`pending`) so recovery never acts on
