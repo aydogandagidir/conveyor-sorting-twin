@@ -32,6 +32,7 @@ from soft_plc import SoftPlc                          # noqa: E402
 from telemetry_logger import TelemetryLogger          # noqa: E402
 import control_logic_mvp                              # noqa: E402
 from scene_model import SceneModel, DEST_CHUTE_A, DEST_CHUTE_B  # noqa: E402
+from barcode import BarcodeDecoder                    # noqa: E402
 
 DEST_MAP = {"CHUTE_A": DEST_CHUTE_A, "CHUTE_B": DEST_CHUTE_B}
 _BUTTON_DEFAULTS = {
@@ -72,8 +73,8 @@ def validate_scenario(scenario) -> bool:
             errors.append(f"{ctx}: invalid action {action!r} (expected one of {sorted(VALID_ACTIONS)})")
         if action in ("press", "release") and "input" not in ev:
             errors.append(f"{ctx}: '{action}' requires 'input'")
-        if action == "spawn_parcel" and "destination" not in ev:
-            errors.append(f"{ctx}: 'spawn_parcel' requires 'destination'")
+        if action == "spawn_parcel" and "destination" not in ev and "barcode" not in ev:
+            errors.append(f"{ctx}: 'spawn_parcel' requires 'destination' or 'barcode'")
         if action == "set_estop" and "value" not in ev:
             errors.append(f"{ctx}: 'set_estop' requires 'value'")
     if errors:
@@ -105,6 +106,8 @@ class ScenarioRunner:
             tempfile.mkdtemp(prefix="oltwin_p1_"), "telemetry.db")
         self.tel = TelemetryLogger(self.telemetry_db, scenario="phase1", sink=telemetry_sink)
         self.scene = None
+        self._decoder = BarcodeDecoder()
+        self._barcodes = {}
 
     def run_file(self, path):
         with open(path, encoding="utf-8") as f:
@@ -117,6 +120,7 @@ class ScenarioRunner:
         self.tel.scenario = scenario.get("name", "phase1")
         self.scene = SceneModel()
         self._ring_write_idx = 0
+        self._barcodes = {}
         inputs = dict(_BUTTON_DEFAULTS)
         self.gw.initialize_inputs()
 
@@ -179,14 +183,17 @@ class ScenarioRunner:
             if divert:
                 result["divert_on_ticks"] += 1
 
-            step_events = self.scene.step(dt, motor, divert)
-            if self.dest_strategy == "fifo_ring":
-                # Enqueue each scanned parcel's destination into the FIFO ring.
-                for ev in step_events:
-                    if ev[0] == "scan":
-                        slot = self._ring_write_idx % self._ring_size
-                        self.gw.write_tag(f"data.dest_ring_{slot}", ev[2])
-                        self._ring_write_idx += 1
+            for sev in self.scene.step(dt, motor, divert):
+                if sev[0] != "scan":
+                    continue
+                _, pid, dest = sev
+                if pid in self._barcodes:  # the parcel was injected by barcode
+                    self.tel.log_event("barcode_scan", tag=pid, value=self._barcodes[pid],
+                                       detail=f"destination={dest}")
+                if self.dest_strategy == "fifo_ring":
+                    slot = self._ring_write_idx % self._ring_size
+                    self.gw.write_tag(f"data.dest_ring_{slot}", dest)
+                    self._ring_write_idx += 1
             prev_motor, prev_jam = motor, jam
 
         result["scene_chute_a"] = list(self.scene.chute_a)
@@ -206,10 +213,18 @@ class ScenarioRunner:
         elif action == "set_estop":
             inputs["input.estop"] = bool(ev["value"])
         elif action == "spawn_parcel":
-            dest = DEST_MAP.get(ev["destination"], DEST_CHUTE_B)
+            if "barcode" in ev:
+                dest = self._decoder.decode(ev["barcode"])
+                label = str(ev["barcode"])
+            else:
+                dest = DEST_MAP.get(ev["destination"], DEST_CHUTE_B)
+                label = ev["destination"]
             pid = self.scene.spawn(dest, ev.get("id"))
-            result["destinations"].append([pid, ev["destination"]])
-            self.tel.log_cycle("parcel_spawn", detail=f"{pid} dest={ev['destination']}")
+            if "barcode" in ev:
+                self._barcodes[pid] = str(ev["barcode"])
+            result["destinations"].append([pid, label])
+            detail = f"{pid} " + (f"barcode={ev['barcode']}" if "barcode" in ev else f"dest={ev['destination']}")
+            self.tel.log_cycle("parcel_spawn", detail=detail)
         elif action == "inject_jam":
             pid = self.scene.inject_jam(ev.get("id"))
             self.tel.log_event("jam_inject", tag="scene", detail=f"parcel={pid}")

@@ -1,0 +1,15 @@
+{
+  "name": "barcode_routing",
+  "description": "Parcels are injected by barcode; the BarcodeDecoder maps each to a chute (A001->A, B002->B, A003->A) and a barcode_scan telemetry event is logged at the scan point.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 6.5,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "barcode": "A001"},
+    {"t": 2.3, "action": "spawn_parcel", "id": "P2", "barcode": "B002"},
+    {"t": 4.1, "action": "spawn_parcel", "id": "P3", "barcode": "A003"}
+  ],
+  "expect": {"sorted_a": 2, "sorted_b": 1, "jam_triggered": false}
+}

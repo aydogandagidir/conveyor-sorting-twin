@@ -23,13 +23,14 @@
           "action": {"enum": ["press", "release", "set_estop", "spawn_parcel", "inject_jam", "clear_jam"]},
           "input": {"enum": ["input.start_pb", "input.stop_pb", "input.reset_pb", "input.estop"]},
           "destination": {"enum": ["CHUTE_A", "CHUTE_B"]},
+          "barcode": {"type": "string"},
           "value": {"type": "boolean"},
           "id": {"type": "string"}
         },
         "allOf": [
           {"if": {"properties": {"action": {"const": "press"}}}, "then": {"required": ["input"]}},
           {"if": {"properties": {"action": {"const": "release"}}}, "then": {"required": ["input"]}},
-          {"if": {"properties": {"action": {"const": "spawn_parcel"}}}, "then": {"required": ["destination"]}},
+          {"if": {"properties": {"action": {"const": "spawn_parcel"}}}, "then": {"anyOf": [{"required": ["destination"]}, {"required": ["barcode"]}]}},
           {"if": {"properties": {"action": {"const": "set_estop"}}}, "then": {"required": ["value"]}}
         ]
       }
