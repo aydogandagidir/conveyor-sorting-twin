@@ -1,7 +1,7 @@
 [project]
 name = "openlogitwin"
-version = "0.2.0"
-description = "OpenLogiTwin — conveyor sorting cell simulator (intralogistics PLC training / virtual commissioning)"
+version = "0.3.0"
+description = "OpenLogiTwin — conveyor sorting cell digital twin (intralogistics PLC training / virtual commissioning)"
 requires-python = ">=3.9"
 # Phase 0 and Phase 1 require NO third-party runtime dependencies (stdlib only).
 dependencies = []
