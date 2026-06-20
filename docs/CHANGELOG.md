@@ -3,6 +3,21 @@
 All notable changes to OpenLogiTwin. Grouped by development phase (the project predates
 formal release tags). Dates are UTC.
 
+## [0.3.0] — 2026-06-18
+
+### Added
+- **Multi-parcel FIFO cell** (ADR-0005): `tags.sorting_cell_advanced.json` (8-slot destination
+  ring), cell-aware `ScenarioRunner` / `scenario_manager` (the scenario `cell` field selects the
+  profile), `scenarios/dense_sort_advanced.json`, and `tests/test_advanced_cell.py`. Densely-spaced
+  parcels route correctly — the advanced cell sorts a dense stream 4/4 where the MVP single
+  register mis-routes it 2/6.
+- **Community health & first release**: `CODE_OF_CONDUCT.md`, `SECURITY.md`, GitHub issue/PR
+  templates. Published to GitHub with CI green across Python 3.9–3.13 × Ubuntu/Windows.
+
+### Changed
+- Framed as a "digital twin"; `pyproject` version → 0.3.0. MVP cell behaviour unchanged
+  (determinism preserved).
+
 ## [Unreleased]
 
 ### Phase 3 — Productization (in progress) · 2026-06-17
