@@ -23,8 +23,10 @@ formal release tags). Dates are UTC.
 ### Added
 - **MQTT telemetry** (third protocol, ADR-0007): `telemetry/mqtt_publisher.py`
   (`MqttTelemetryPublisher`) publishes telemetry events to `"{prefix}/{scenario}/{event_type}"`;
-  `TelemetryLogger` gains an optional `sink=` hook. Optional `paho-mqtt`; pure formatting + sink
-  tests run with no broker, real round-trip verified against paho-mqtt + amqtt.
+  `TelemetryLogger` gains an optional `sink=` hook, threaded through `ScenarioRunner`; a
+  `--mqtt-host=HOST[:PORT]` flag on `scenario_manager` / `run_full_demo` streams telemetry live.
+  Optional `paho-mqtt`; pure formatting + sink tests run with no broker, real round-trip verified
+  against paho-mqtt + amqtt.
 - **OPC UA adapter** (second protocol, ADR-0006): real `asyncua`-backed `OpcUaClient` +
   `build_opcua_server` helper, wired into `protocol_factory` (`kind="opcua"`). The same
   `TagGateway` runs over Modbus, in-process, pymodbus, **and OPC UA**. Optional dep; skip-by-default

@@ -9,8 +9,10 @@ FUXA panel lands.
 Usage:
   python scripts/scenario_manager.py list
   python scripts/scenario_manager.py validate scenarios/rapid_jam_reset.json
-  python scripts/scenario_manager.py run rapid_jam_reset [--export-dir=DIR] [--local]
-  python scripts/scenario_manager.py run-all [--export-dir=DIR] [--local]
+  python scripts/scenario_manager.py run rapid_jam_reset [--export-dir=DIR] [--local] [--mqtt-host=HOST[:PORT]]
+  python scripts/scenario_manager.py run-all [--export-dir=DIR] [--local] [--mqtt-host=HOST[:PORT]]
+
+The --mqtt-host flag streams each telemetry event to an MQTT broker (requires paho-mqtt).
 """
 import glob
 import json
@@ -64,13 +66,27 @@ def resolve(name):
     raise FileNotFoundError(f"scenario not found: {name}")
 
 
-def run_and_check(path, export_dir=None, use_modbus=True):
+def make_mqtt_publisher(argv):
+    """Build a connected MqttTelemetryPublisher from --mqtt-host=HOST[:PORT], or None."""
+    spec = None
+    for a in argv:
+        if a.startswith("--mqtt-host="):
+            spec = a.split("=", 1)[1]
+    if not spec:
+        return None
+    host, _, port = spec.partition(":")
+    from mqtt_publisher import MqttTelemetryPublisher
+    return MqttTelemetryPublisher(host=host, port=int(port) if port else 1883).connect()
+
+
+def run_and_check(path, export_dir=None, use_modbus=True, telemetry_sink=None):
     """Run a scenario on its cell profile; return (result, expect, mismatches)."""
     with open(path, encoding="utf-8") as f:
         scenario = json.load(f)
     prof = _profile(scenario)
     runner = ScenarioRunner(prof["registry"], use_modbus=use_modbus,
-                            control=prof["control"], dest_strategy=prof["dest_strategy"])
+                            control=prof["control"], dest_strategy=prof["dest_strategy"],
+                            telemetry_sink=telemetry_sink)
     result = runner.run(scenario)
     if export_dir:
         name = os.path.splitext(os.path.basename(path))[0]
@@ -122,7 +138,13 @@ def cmd_run(argv):
     export_dir = _export_dir(argv)
     name = [a for a in argv if not a.startswith("--")][0]
     path = resolve(name)
-    result, expect, mm = run_and_check(path, export_dir, use_modbus="--local" not in argv)
+    pub = make_mqtt_publisher(argv)
+    try:
+        result, expect, mm = run_and_check(path, export_dir, use_modbus="--local" not in argv,
+                                           telemetry_sink=pub.as_sink() if pub else None)
+    finally:
+        if pub:
+            pub.close()
     _print_result(result["name"] or os.path.basename(path), result, expect, mm)
     return 1 if mm else 0
 
@@ -130,13 +152,20 @@ def cmd_run(argv):
 def cmd_run_all(argv):
     export_dir = _export_dir(argv)
     use_modbus = "--local" not in argv
+    pub = make_mqtt_publisher(argv)
+    sink = pub.as_sink() if pub else None
     failures = 0
     print(f"Running {len(scenario_files())} scenarios...")
-    for path in scenario_files():
-        result, expect, mm = run_and_check(path, export_dir, use_modbus=use_modbus)
-        _print_result(result["name"] or os.path.basename(path), result, expect, mm)
-        if mm:
-            failures += 1
+    try:
+        for path in scenario_files():
+            result, expect, mm = run_and_check(path, export_dir, use_modbus=use_modbus,
+                                               telemetry_sink=sink)
+            _print_result(result["name"] or os.path.basename(path), result, expect, mm)
+            if mm:
+                failures += 1
+    finally:
+        if pub:
+            pub.close()
     print("=" * 60)
     print("ALL EXPECTATIONS MET" if not failures else f"{failures} scenario(s) FAILED expectations")
     return 1 if failures else 0

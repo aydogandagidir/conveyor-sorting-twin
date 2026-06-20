@@ -14,7 +14,8 @@ import tempfile
 import time
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(_ROOT, "telemetry"))
+for _sub in ("telemetry", "scripts", "protocol-gateway", "plc", "simulation"):
+    sys.path.insert(0, os.path.join(_ROOT, _sub))
 
 from mqtt_publisher import MqttTelemetryPublisher  # noqa: E402
 from telemetry_logger import TelemetryLogger        # noqa: E402
@@ -75,6 +76,18 @@ def test_sink_failure_does_not_crash_logging():
     tel.log_event("cycle", tag="x")   # must not raise despite the failing sink
     assert tel.count() == 1           # the SQLite write still happened
     tel.close()
+
+
+def test_scenario_run_forwards_telemetry_to_sink():
+    # The CLI wires --mqtt-host -> publisher.as_sink() -> ScenarioRunner -> TelemetryLogger.
+    # Here a list sink proves the whole thread end to end (no broker needed).
+    import scenario_manager
+    collected = []
+    path = scenario_manager.resolve("barcode_sorting_basic")
+    scenario_manager.run_and_check(path, use_modbus=False, telemetry_sink=collected.append)
+    assert collected, "no telemetry reached the sink"
+    assert all("event_type" in e and "scenario" in e for e in collected)
+    assert any(e["event_type"] == "sort" for e in collected)
 
 
 # --- real round-trip: skips without paho + broker ---------------------------
