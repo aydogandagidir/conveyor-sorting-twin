@@ -28,6 +28,14 @@ In FUXA → **Devices** → add a **Modbus TCP** device:
   classic reference (coils `0xxxx`, discrete inputs `1xxxx`, input registers `3xxxx`,
   holding registers `4xxxx`); `address_0based` is the raw offset if FUXA uses 0-based.
 
+> **Two gotchas on FUXA 1.3+ (verified against `frangoteam/fuxa` v1.3.3, 2026-06-20):**
+> 1. **Install the Modbus device plugin.** Comm drivers are dynamic plugins; an uninstalled one
+>    logs `try to create … but plugin is missing!`. Install **Modbus** (`modbus-serial`) from
+>    *Settings → Device Plugins*. Headless: `docker exec <fuxa> sh -c "cd /usr/src/app/FUXA/server && npm i modbus-serial"`, then restart.
+> 2. **Put the port *inside* the address.** FUXA's TCP driver ignores the separate port field and
+>    parses `host:port` from the address (defaulting to 502). Use address `127.0.0.1:15502`
+>    (or `host.docker.internal:15502` when FUXA runs in a container reaching a host PLC).
+
 ## 4. Suggested widget bindings
 | Widget | Tag(s) | Modbus |
 |--------|--------|--------|
@@ -41,8 +49,9 @@ In FUXA → **Devices** → add a **Modbus TCP** device:
 ## Status
 - ✅ Device tag list (auto-generated, drift-guarded by `tests/test_hmi_tag_list.py`).
 - ✅ Integration steps (this file) + `docker-compose` `hmi` profile.
-- 🟡 Generated FUXA project `hmi/fuxa/openlogitwin_project.json` — a ModbusTCP device + the
-  12 tags built from the registry following FUXA's data model (`scripts/generate_fuxa_project.py`,
-  structure-tested). **Best-effort: import into FUXA to confirm**; adjust type/access strings
-  or the project envelope to your FUXA version if needed.
-- ⬜ SVG mimic screens — drawn in the FUXA editor and bound to the imported tags.
+- ✅ Generated FUXA project `hmi/fuxa/openlogitwin_project.json` (ModbusTCP device + 12 registry
+  tags). **Verified 2026-06-20**: imported into FUXA v1.3.3 via its API, the device connects and
+  polls the soft-PLC, and live values propagate (e.g. `data.parcel_destination` 1→2→7 tracked).
+  FUXA's own Modbus lib (`modbus-serial`) reads all four function codes from the twin cleanly.
+- ⬜ SVG mimic screens — drawn in the FUXA editor and bound to the imported tags (cosmetic; the
+  data path above is independent of the drawing).
