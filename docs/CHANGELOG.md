@@ -20,6 +20,12 @@ formal release tags). Dates are UTC.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-20
+
+Hardening & integration release: the three protocols are now exercised end-to-end (MQTT streaming
+from the CLI, a full control loop over OPC UA), a richer scenario gallery, per-parcel barcodes, a
+performance baseline, and a proper GitHub Pages landing page.
+
 ### Added
 - **OPC UA full control loop** (A7): `opcua_adapter` gains a `server_to_store` / `store_to_server`
   bridge so a complete sorting cycle runs **end-to-end over OPC UA** — the gateway writes

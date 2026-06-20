@@ -20,19 +20,22 @@ Status legend: ✅ done & verified · 🟡 in progress · ⬜ planned · 🔒 de
 - **Stage 2** — multi-parcel FIFO cell promoted to first-class (`tags.sorting_cell_advanced.json`,
   cell-aware runner/manager, `dense_sort_advanced` scenario) — ADR-0005.
 - **Stage 3** — community health (CODE_OF_CONDUCT, SECURITY, issue/PR templates) + **v0.3.0** release.
-- **GitHub Pages** — demo report auto-published: https://aydogandagidir.github.io/conveyor-sorting-twin/
-- 17 test files green (pytest 54 passed, 6 optional skips); CI matrix Python 3.9–3.13 × Ubuntu/Windows.
+- **Track A / v0.4.0** — hardening & integration (see below): MQTT-from-CLI, scenario gallery,
+  control robustness, barcode simulator, performance baseline, Pages landing, OPC UA full loop.
+- **GitHub Pages** — project landing + auto-published demo report: https://aydogandagidir.github.io/conveyor-sorting-twin/
+- 21 test files green (pytest 71 passed, 6 optional backend skips); CI matrix Python 3.9–3.13 × Ubuntu/Windows.
 
-## Remaining — Track A (verifiable here, planned)
-Optional hardening/enhancements; each lands via branch → PR → CI → merge (see the approved plan).
-- ⬜ MQTT CLI integration (`--mqtt-host` on scenario manager / demo).
-- ⬜ Scenario gallery (back-to-back, two jams, motor-never-starts, estop-during-divert).
-- ⬜ Control robustness (uint16 counter overflow; optional soft jam recovery).
-- ⬜ Per-parcel barcode simulator (`simulation/barcode.py`).
-- ⬜ Performance/throughput test + `docs/PERFORMANCE.md` baseline.
-- ⬜ Richer GitHub Pages landing page.
-- ⬜ OPC UA full-loop bridge (run a scenario end-to-end over OPC UA).
-- ⬜ (Optional) Modbus connection health/reconnect; multi-word register types.
+## Track A — hardening & integration (done in v0.4.0)
+Each landed via branch → PR → CI → merge.
+- ✅ MQTT CLI integration (`--mqtt-host` on scenario manager / demo) — verified vs a real broker.
+- ✅ Scenario gallery (`back_to_back_sort`, `two_jams`, `motor_never_starts`, `estop_during_divert`).
+- ✅ Control robustness (uint16 counter wrap; E-stop/Stop void the in-flight routing decision).
+- ✅ Per-parcel barcode simulator (`simulation/barcode.py`, EAN-13) + `barcode_scan` telemetry.
+- ✅ Performance/throughput test + `docs/PERFORMANCE.md` baseline.
+- ✅ Richer GitHub Pages landing page (`web/index.html`).
+- ✅ OPC UA full-loop bridge — a full sorting cycle runs end-to-end over OPC UA.
+- ⬜ (Optional, low priority) Modbus connection health/reconnect; multi-word register types
+  (uint32/float32). Not required for any current scenario.
 
 ## Remaining — Track B (needs an external runtime; scaffolds + guides ready)
 - 🔒 **FUXA SVG mimic screens** — import `generate_fuxa_project.py` output, draw mimic, bind widgets
