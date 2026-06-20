@@ -5,7 +5,7 @@ aggregates throughput/sort/fault metrics into telemetry/exports/demo_results.jso
 renders a self-contained HTML + Markdown report.
 
 Usage:
-  python scripts/run_full_demo.py [--export-dir=DIR] [--modbus] [--no-report]
+  python scripts/run_full_demo.py [--export-dir=DIR] [--modbus] [--no-report] [--mqtt-host=HOST[:PORT]]
 """
 import json
 import os
@@ -30,14 +30,14 @@ DEMO_SCENARIOS = [
 ]
 
 
-def run_demo(export_dir=EXPORTS, use_modbus=False, timestamp=None):
+def run_demo(export_dir=EXPORTS, use_modbus=False, timestamp=None, telemetry_sink=None):
     rows = []
     for name in DEMO_SCENARIOS:
         path = scenario_manager.resolve(name)
         scenario = json.load(open(path, encoding="utf-8"))
         dt = float(scenario.get("dt", 0.05))
         result, _expect, mismatches = scenario_manager.run_and_check(
-            path, export_dir=export_dir, use_modbus=use_modbus)
+            path, export_dir=export_dir, use_modbus=use_modbus, telemetry_sink=telemetry_sink)
         rows.append({
             "name": result["name"],
             "sorted_a": result["sorted_a"],
@@ -77,7 +77,13 @@ def main(argv):
             export_dir = a.split("=", 1)[1]
     # Demo defaults to in-process (deterministic, fast); pass --modbus for real TCP.
     use_modbus = "--modbus" in argv
-    data = run_demo(export_dir=export_dir, use_modbus=use_modbus)
+    pub = scenario_manager.make_mqtt_publisher(argv)
+    try:
+        data = run_demo(export_dir=export_dir, use_modbus=use_modbus,
+                        telemetry_sink=pub.as_sink() if pub else None)
+    finally:
+        if pub:
+            pub.close()
 
     os.makedirs(export_dir, exist_ok=True)
     results_path = os.path.join(export_dir, "demo_results.json")

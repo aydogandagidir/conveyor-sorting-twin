@@ -83,7 +83,7 @@ def validate_scenario(scenario) -> bool:
 
 class ScenarioRunner:
     def __init__(self, registry_path, telemetry_db=None, use_modbus=True,
-                 control=None, dest_strategy="single"):
+                 control=None, dest_strategy="single", telemetry_sink=None):
         # `control` defaults to the MVP program; `dest_strategy` is how parcel
         # destinations reach the PLC: "single" (one shared data.parcel_destination,
         # MVP) or "fifo_ring" (per-parcel data.dest_ring_* enqueued on scan, ADR-0005).
@@ -103,7 +103,7 @@ class ScenarioRunner:
         self.gw = TagGateway(self.registry, self.client)
         self.telemetry_db = telemetry_db or os.path.join(
             tempfile.mkdtemp(prefix="oltwin_p1_"), "telemetry.db")
-        self.tel = TelemetryLogger(self.telemetry_db, scenario="phase1")
+        self.tel = TelemetryLogger(self.telemetry_db, scenario="phase1", sink=telemetry_sink)
         self.scene = None
 
     def run_file(self, path):
