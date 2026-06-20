@@ -1,0 +1,15 @@
+{
+  "name": "back_to_back_sort",
+  "description": "Three parcels near the MVP minimum spacing (1.7 s) — A, B, A — each routed correctly.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 6.5,
+  "events": [
+    {"t": 0.0, "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1, "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 2.2, "action": "spawn_parcel", "id": "P2", "destination": "CHUTE_B"},
+    {"t": 3.9, "action": "spawn_parcel", "id": "P3", "destination": "CHUTE_A"}
+  ],
+  "expect": {"sorted_a": 2, "sorted_b": 1, "jam_triggered": false}
+}

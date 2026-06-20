@@ -151,6 +151,19 @@ def test_jammed_parcel_is_never_counted():
     assert st["count_a"] == 0
 
 
+def test_counter_wraps_at_uint16():
+    # The uint16 counter output wraps at 65536 (matches the Modbus input register),
+    # even though the internal running total keeps counting.
+    st = C.initial_state()
+    st["running"] = True
+    st["count_a"] = 65535
+    st["pending"] = C.DEST_CHUTE_A
+    st["prev_pe_002"] = True                      # pe_002 False below = falling edge -> count
+    out, st = C.scan(I(**{"sensor.pe_002": False}), st)
+    assert st["count_a"] == 65536
+    assert out["counter.sorted_chute_a"] == 0
+
+
 def _all_tests():
     return [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
 

@@ -1,0 +1,17 @@
+{
+  "name": "estop_during_divert",
+  "description": "E-stop engaged while a CHUTE_A parcel is at the diverter voids the routing decision; on recovery the parcel passes straight, uncounted. Exercises estop-during-divert safety.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 6.0,
+  "events": [
+    {"t": 0.0,  "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1,  "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5,  "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 2.15, "action": "set_estop",    "value": true},
+    {"t": 3.0,  "action": "set_estop",    "value": false},
+    {"t": 3.2,  "action": "press",        "input": "input.start_pb"},
+    {"t": 3.3,  "action": "release",      "input": "input.start_pb"}
+  ],
+  "expect": {"sorted_a": 0, "sorted_b": 0, "jam_triggered": false}
+}

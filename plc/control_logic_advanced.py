@@ -48,6 +48,7 @@ def scan(inputs: dict, state: dict):
     if estop or stop:
         state["running"] = False
         state["divert"] = False
+        state["pending"] = 0
 
     if start_edge and not estop and not state["jam"]:
         state["running"] = True
@@ -86,8 +87,9 @@ def scan(inputs: dict, state: dict):
         "output.motor_conv_001_run": motor,
         "output.diverter_dv_001_extend": divert,
         "alarm.jam_001": state["jam"],
-        "counter.sorted_chute_a": state["count_a"],
-        "counter.sorted_chute_b": state["count_b"],
+        # uint16 counters wrap at 65536, matching the Modbus input register.
+        "counter.sorted_chute_a": state["count_a"] & 0xFFFF,
+        "counter.sorted_chute_b": state["count_b"] & 0xFFFF,
     }
     state["prev_pe_002"] = pe2
     state["prev_start"] = start

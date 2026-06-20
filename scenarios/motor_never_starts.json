@@ -1,0 +1,11 @@
+{
+  "name": "motor_never_starts",
+  "description": "A parcel is spawned but Start is never pressed; the motor stays off and nothing is sorted.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 3.0,
+  "events": [
+    {"t": 0.5, "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"}
+  ],
+  "expect": {"sorted_a": 0, "sorted_b": 0, "jam_triggered": false}
+}

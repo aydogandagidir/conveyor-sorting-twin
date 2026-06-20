@@ -75,11 +75,13 @@ def scan(inputs: dict, state: dict):
         state["pending"] = 0
         state["divert"] = False
 
-    # E-stop or Stop drop the running latch and de-energise the diverter latch
-    # (safety: never leave the actuator latched while stopped).
+    # E-stop or Stop drop the running latch, de-energise the diverter, and void any
+    # in-flight routing decision (safety: never leave the actuator latched while stopped,
+    # and don't act on a stale decision after recovery).
     if estop or stop:
         state["running"] = False
         state["divert"] = False
+        state["pending"] = 0
 
     # Start latches running only when safe.
     if start_edge and not estop and not state["jam"]:
@@ -117,8 +119,9 @@ def scan(inputs: dict, state: dict):
         "output.motor_conv_001_run": motor,
         "output.diverter_dv_001_extend": divert,
         "alarm.jam_001": state["jam"],
-        "counter.sorted_chute_a": state["count_a"],
-        "counter.sorted_chute_b": state["count_b"],
+        # uint16 counters wrap at 65536, matching the Modbus input register.
+        "counter.sorted_chute_a": state["count_a"] & 0xFFFF,
+        "counter.sorted_chute_b": state["count_b"] & 0xFFFF,
     }
 
     state["prev_pe_002"] = pe2
