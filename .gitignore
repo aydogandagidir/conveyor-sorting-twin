@@ -12,6 +12,9 @@ venv/
 *.sqlite3
 telemetry/exports/
 
+# Generated GitHub Pages site (built in CI from the demo report)
+_site/
+
 # OS / editor / local tooling
 .DS_Store
 Thumbs.db
