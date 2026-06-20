@@ -23,6 +23,7 @@ SUITE = [
     "tests/test_phase2_scenarios.py",    # Phase 2 scenario suite (faults + controls)
     "tests/test_pymodbus_adapter.py",    # protocol factory + pymodbus adapter (skips w/o pymodbus)
     "tests/test_opcua_adapter.py",       # OPC UA adapter (skips w/o asyncua)
+    "tests/test_mqtt_telemetry.py",      # MQTT telemetry sink (roundtrip skips w/o broker)
     "tests/test_hmi_tag_list.py",        # FUXA tag list drift guard
     "tests/test_demo_report.py",         # Phase 3c demo runner + report generator
     "tests/test_st_examples.py",         # Phase 3b OpenPLC ST structural lint
