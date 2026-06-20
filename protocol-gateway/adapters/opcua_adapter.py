@@ -55,6 +55,41 @@ def server_set(server, ns, table, address, value):
         node.set_value(ua.Variant(int(value) & 0xFFFF, ua.VariantType.UInt16))
 
 
+# --- full-loop bridge: mirror the OPC UA address space <-> a soft-PLC store ----
+# Together these let a scenario run end-to-end over OPC UA: the gateway (master)
+# reads/writes nodes over the wire, while the soft-PLC scans the in-process store.
+# Per tick the bridge is the "PLC's OPC UA server" keeping its address space and
+# process image in sync. Call server_to_store() BEFORE a scan and store_to_server()
+# AFTER it (see tests/test_opcua_full_loop.py). ADR-0006.
+def server_to_store(server, ns, store, size=16):
+    """Copy the OPC UA address space into a ModbusDataStore (OPC UA -> process image)."""
+    from asyncua import ua
+    vals = {table: [server.get_node(ua.NodeId(f"{table}_{a}", ns)).get_value()
+                    for a in range(size)] for table in _TABLES}
+    with store.lock:
+        store.coils[:size] = [bool(x) for x in vals["coil"]]
+        store.discrete_inputs[:size] = [bool(x) for x in vals["discrete_input"]]
+        store.holding_registers[:size] = [int(x) & 0xFFFF for x in vals["holding_register"]]
+        store.input_registers[:size] = [int(x) & 0xFFFF for x in vals["input_register"]]
+
+
+def store_to_server(server, ns, store, size=16):
+    """Copy a ModbusDataStore onto the OPC UA address space (process image -> OPC UA)."""
+    from asyncua import ua
+    with store.lock:
+        snap = {
+            "coil": [bool(x) for x in store.coils[:size]],
+            "discrete_input": [bool(x) for x in store.discrete_inputs[:size]],
+            "holding_register": [int(x) & 0xFFFF for x in store.holding_registers[:size]],
+            "input_register": [int(x) & 0xFFFF for x in store.input_registers[:size]],
+        }
+    for table, arr in snap.items():
+        is_bool = table in _BOOL_TABLES
+        for addr, v in enumerate(arr):
+            node = server.get_node(ua.NodeId(f"{table}_{addr}", ns))
+            node.set_value(bool(v) if is_bool else ua.Variant(v, ua.VariantType.UInt16))
+
+
 class OpcUaClient:
     def __init__(self, endpoint="opc.tcp://127.0.0.1:48400/oltwin", timeout=4.0):
         self.endpoint = endpoint

@@ -31,9 +31,13 @@ Implement a **real OPC UA adapter** on top of `asyncua` (sync API), replacing th
 
 ## Consequences
 - Verified against asyncua 2.0 (sync API); `read_register` values are exchanged as `UInt16`.
+- A `server_to_store` / `store_to_server` bridge lets a full sorting cycle run **end-to-end over
+  OPC UA** (the gateway over the wire, the soft-PLC scanning the mirrored process image) — see
+  `tests/test_opcua_full_loop.py`, not just a single-node round-trip.
 - The unsecured OPC UA endpoint is for local simulation/training only (no auth/encryption) — same
   caution as the Modbus endpoint (see `SECURITY.md`).
 - MQTT remains a stub (`adapters/mqtt_stub.py`) — third priority, pub/sub semantics to reconcile.
+  *(Superseded: MQTT telemetry is now real — see ADR-0007.)*
 
 ## Alternatives considered
 - **Keep the OPC UA stub**: rejected — OPC UA is the next roadmap protocol and `asyncua` makes a

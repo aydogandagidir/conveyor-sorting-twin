@@ -21,6 +21,10 @@ formal release tags). Dates are UTC.
 ## [Unreleased]
 
 ### Added
+- **OPC UA full control loop** (A7): `opcua_adapter` gains a `server_to_store` / `store_to_server`
+  bridge so a complete sorting cycle runs **end-to-end over OPC UA** — the gateway writes
+  sensors/inputs and reads actuators/counters over the wire while the soft-PLC scans the mirrored
+  process image. `tests/test_opcua_full_loop.py` (skips without `asyncua`).
 - **Per-parcel barcode simulator** (`simulation/barcode.py`): a parcel can be injected by
   `barcode` instead of a raw chute; `BarcodeDecoder` maps it to a destination (explicit routes →
   valid **EAN-13** parity → alpha prefix) and a `barcode_scan` telemetry event is logged at the
