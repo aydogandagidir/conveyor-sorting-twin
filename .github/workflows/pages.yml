@@ -27,10 +27,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Generate the demo report site (stdlib only)
+      - name: Generate the demo report + landing page (stdlib only)
         run: |
           python scripts/run_full_demo.py --export-dir=_site
-          cp _site/demo_report.html _site/index.html
+          cp web/index.html _site/index.html   # landing links to demo_report.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
