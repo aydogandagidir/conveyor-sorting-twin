@@ -66,21 +66,19 @@ Deferred (per decision): Godot 3D wiring; real OpenPLC ST/LD migration.
 - **Keep custom Modbus + add pymodbus adapter** (Phase 2, additive via factory).
 - **Keep soft-PLC stub through Phase 2**; real OpenPLC port deferred (after E-stop fail-safe).
 
-## In progress — Phase 2 (HMI + Scenario Manager)
+## Done — Phase 2 (HMI + Scenario Manager)  — (FUXA SVG screens = external runtime)
 - [x] Scenario manager CLI (`scripts/scenario_manager.py`): list / validate / run / run-all
       with `expect` checks.
 - [x] Fault-injection + control scenarios (E-stop, Stop, rapid jam/reset) with expectations.
 - [x] Start / stop / reset / E-stop controls exercised via scenarios + CLI.
-- [x] Protocol extensibility: pymodbus adapter (verified vs pymodbus 3.13) + `protocol_factory`
-      + OPC UA / MQTT stubs.
-- [x] FUXA tag-list generator (registry-derived, drift-guarded) + `hmi/fuxa/INTEGRATION.md`.
-- [ ] FUXA mimic project JSON (SVG screens) — authored & exported inside FUXA.
+- [x] Protocol extensibility: `protocol_factory` + pymodbus adapter (vs 3.13) + **real OPC UA**
+      adapter (asyncua, ADR-0006) + **MQTT telemetry** sink (ADR-0007).
+- [x] FUXA tag-list generator (registry-derived, drift-guarded) + project generator + `INTEGRATION.md`.
+- [ ] FUXA mimic project JSON (SVG screens) — authored & exported inside FUXA (external runtime).
 
-## Later — Phase 3 (Productization)
-- [ ] Deployment/installer docs.
-- [ ] Sample PLC programs (OpenPLC ST/LD).
-- [ ] Training scenario docs.
-- [ ] Demo script + exportable results.
+## Done — Stage 3 (release & community)
+- [x] Community health: `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue/PR templates.
+- [x] **v0.3.0** release + GitHub Pages (demo report auto-published).
 
 ## Protocol roadmap (per stack direction)
 1. Modbus TCP — **done** (in-repo + pymodbus adapter).
