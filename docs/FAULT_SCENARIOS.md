@@ -11,6 +11,10 @@ checked by `python scripts/scenario_manager.py run-all`.
 | `jam_recovery_basic` | parcel jams at pe_002; reset after latch | `alarm.jam_001` latches, motor stops; reset clears; follow-up → B=1 | intermediate |
 | `rapid_jam_reset` | jam + reset as soon as the alarm latches | jam triggered & cleared; follow-up → B=1 | intermediate |
 | `dense_sort_advanced` | 8 parcels @ 0.4 s on the **advanced** (FIFO-ring) cell | all 8 route correctly → A=4, B=4 (the MVP cell would mis-route) | advanced |
+| `back_to_back_sort` | 3 parcels A,B,A near the MVP min spacing (1.7 s) | each routed correctly → A=2, B=1 | intro |
+| `motor_never_starts` | Start never pressed | motor stays off; nothing sorted (A=0, B=0) | intro |
+| `two_jams` | two jam/reset cycles, then a clean sort | jam ×2 triggered & cleared; final → A=1 | intermediate |
+| `estop_during_divert` | E-stop while a parcel is at the diverter | routing decision voided; parcel passes straight, uncounted (A=0, B=0) | advanced |
 
 ## Fault models in the simulator
 - **Jam** — `inject_jam` freezes a parcel at pe_002; the PLC's 1 s dwell timer

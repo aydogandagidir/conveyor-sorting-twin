@@ -21,6 +21,10 @@ formal release tags). Dates are UTC.
 ## [Unreleased]
 
 ### Added
+- **Scenario gallery + control robustness**: scenarios `back_to_back_sort`, `motor_never_starts`,
+  `two_jams`, `estop_during_divert`. uint16 counters now wrap explicitly (match the Modbus
+  register); E-stop/Stop void the in-flight routing decision (`pending`) so recovery never acts on
+  a stale decision. `tests/test_control_logic_mvp.py` covers the counter wrap.
 - **MQTT telemetry** (third protocol, ADR-0007): `telemetry/mqtt_publisher.py`
   (`MqttTelemetryPublisher`) publishes telemetry events to `"{prefix}/{scenario}/{event_type}"`;
   `TelemetryLogger` gains an optional `sink=` hook, threaded through `ScenarioRunner`; a

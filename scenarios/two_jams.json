@@ -1,0 +1,25 @@
+{
+  "name": "two_jams",
+  "description": "Two separate jam/reset cycles (P1 then P2), then parcel P3 sorts normally to CHUTE_A.",
+  "cell": "sorting_cell_mvp",
+  "dt": 0.05,
+  "duration": 9.5,
+  "events": [
+    {"t": 0.0,  "action": "press",        "input": "input.start_pb"},
+    {"t": 0.1,  "action": "release",      "input": "input.start_pb"},
+    {"t": 0.5,  "action": "spawn_parcel", "id": "P1", "destination": "CHUTE_A"},
+    {"t": 2.15, "action": "inject_jam",   "id": "P1"},
+    {"t": 3.3,  "action": "press",        "input": "input.reset_pb"},
+    {"t": 3.4,  "action": "release",      "input": "input.reset_pb"},
+    {"t": 3.6,  "action": "press",        "input": "input.start_pb"},
+    {"t": 3.7,  "action": "release",      "input": "input.start_pb"},
+    {"t": 3.9,  "action": "spawn_parcel", "id": "P2", "destination": "CHUTE_B"},
+    {"t": 5.55, "action": "inject_jam",   "id": "P2"},
+    {"t": 6.7,  "action": "press",        "input": "input.reset_pb"},
+    {"t": 6.8,  "action": "release",      "input": "input.reset_pb"},
+    {"t": 7.0,  "action": "press",        "input": "input.start_pb"},
+    {"t": 7.1,  "action": "release",      "input": "input.start_pb"},
+    {"t": 7.3,  "action": "spawn_parcel", "id": "P3", "destination": "CHUTE_A"}
+  ],
+  "expect": {"jam_triggered": true, "jam_cleared": true, "sorted_a": 1, "sorted_b": 0}
+}
