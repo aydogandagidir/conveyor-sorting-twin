@@ -20,6 +20,14 @@ formal release tags). Dates are UTC.
 
 ## [Unreleased]
 
+### Added
+- **OPC UA adapter** (second protocol, ADR-0006): real `asyncua`-backed `OpcUaClient` +
+  `build_opcua_server` helper, wired into `protocol_factory` (`kind="opcua"`). The same
+  `TagGateway` runs over Modbus, in-process, pymodbus, **and OPC UA**. Optional dep; skip-by-default
+  `tests/test_opcua_adapter.py` (verified vs asyncua 2.0). Replaces the OPC UA stub.
+- **GitHub Pages**: `.github/workflows/pages.yml` publishes the demo report on every push to main
+  → https://aydogandagidir.github.io/conveyor-sorting-twin/
+
 ### Phase 3 — Productization (in progress) · 2026-06-17
 - Added one-command demo runner `scripts/run_full_demo.py` (runs the scenario suite,
   aggregates throughput/sort/fault metrics) and `scripts/generate_demo_report.py`

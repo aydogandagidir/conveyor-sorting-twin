@@ -12,6 +12,7 @@ dev = [
   "pytest>=7",        # Phase 1.5e: pytest migration
   "jsonschema>=4",    # optional formal schema validation
   "pymodbus>=3.6",    # Phase 2: pymodbus adapter (kept alongside the in-repo Modbus)
+  "asyncua>=1.0",     # Phase 2: OPC UA adapter (second protocol priority)
 ]
 
 # Tested on Python 3.9, 3.10, 3.11, 3.13 (see .github/workflows/verify.yml).
