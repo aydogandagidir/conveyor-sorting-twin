@@ -7,9 +7,9 @@
   "use strict";
   var NS = "http://www.w3.org/2000/svg", svg = document.getElementById("cell"), $ = function (id) { return document.getElementById(id); };
   var cssv = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
-  var OX = 154, SCALE = 5.05, BELT_Y = 178, BELT_H = 22, BOX_H = 17, BOX_W = 22;
+  var OX = 168, SCALE = 5.27, BELT_Y = 250, BELT_H = 32, BOX_H = 26, BOX_W = 30;
   var cx = function (cm) { return OX + cm * SCALE; };
-  var A_BIN = { x: 700, y: 76 }, B_BIN = { x: 840, y: 196 };
+  var A_BIN = { x: 690, y: 118 }, B_BIN = { x: 798, y: 338 };
   var frames = [], dt = 0.05, dur = 0, layout = null;
   var simT = 0, playing = true, speed = 1, lastIdx = -1, lastTick = null;
   var vis = new Map(), spark = [], alarms = [], alarmSeq = 0, jamActive = false, estopLatched = false;
@@ -21,48 +21,57 @@
   function drawStatic() {
     svg.innerHTML = "";
     var L = cssv("--line"), L2 = cssv("--line-2"), INK = cssv("--ink"), INK2 = cssv("--ink-2"), BG = cssv("--bg");
-    var bx0 = cx(0), bx1 = cx(layout.end);
-    svg.appendChild(txt(150, 26, "CONV-001 · SORTING CELL", INK2, 11));
-    // flow arrow
-    svg.appendChild(el("path", { d: "M150 40 h36 m-7 -4 l7 4 l-7 4", fill: "none", stroke: L2, "stroke-width": 1.2 }));
-    // conveyor body (outline only, fill = canvas)
-    svg.appendChild(el("rect", { x: bx0, y: BELT_Y, width: bx1 - bx0, height: BELT_H, fill: BG, stroke: L, "stroke-width": 1.4 }));
-    svg.appendChild(el("line", { id: "sv-flow", x1: bx0 + 6, y1: BELT_Y + BELT_H / 2, x2: bx0 + 26, y2: BELT_Y + BELT_H / 2, stroke: L2, "stroke-width": 1, "marker-end": "" }));
+    var bx0 = cx(0), bx1 = cx(layout.end), cyc = BELT_Y + BELT_H / 2;
+    svg.appendChild(txt(bx0 - 26, 30, "CONV-001 · SORTING CELL", INK2, 12));
+    svg.appendChild(el("path", { d: "M" + (bx0 + 100) + " 26 h34 m-7 -4 l7 4 l-7 4", fill: "none", stroke: L2, "stroke-width": 1.2 }));
+    // infeed funnel feeding the belt start
+    svg.appendChild(el("path", { d: "M" + (bx0 + 6) + " " + (BELT_Y - 80) + " h46 l-13 62 h-20 z", fill: BG, stroke: L, "stroke-width": 1.2 }));
+    svg.appendChild(txt(bx0 + 28, BELT_Y - 86, "INFEED", INK2, 9.5, "middle"));
     // drive motor M-001 (ISA circle)
-    svg.appendChild(el("circle", { id: "sv-motor", cx: bx0 - 24, cy: BELT_Y + BELT_H / 2, r: 16, fill: BG, stroke: L, "stroke-width": 1.4 }));
-    svg.appendChild(txt(bx0 - 24, BELT_Y + BELT_H / 2 + 4, "M", INK, 12, "middle"));
-    svg.appendChild(txt(bx0 - 24, BELT_Y + BELT_H + 22, "M-001", INK2, 9.5, "middle"));
+    svg.appendChild(el("circle", { id: "sv-motor", cx: bx0 - 26, cy: cyc, r: 20, fill: BG, stroke: L, "stroke-width": 1.4 }));
+    svg.appendChild(txt(bx0 - 26, cyc + 5, "M", INK, 14, "middle"));
+    svg.appendChild(txt(bx0 - 26, BELT_Y + BELT_H + 22, "M-001", INK2, 9.5, "middle"));
+    // conveyor (outline; fill = canvas) + side rails
+    svg.appendChild(el("rect", { x: bx0, y: BELT_Y, width: bx1 - bx0, height: BELT_H, fill: BG, stroke: L, "stroke-width": 1.4 }));
+    svg.appendChild(el("line", { x1: bx0, y1: BELT_Y + 5, x2: bx1, y2: BELT_Y + 5, stroke: L, "stroke-width": .6, opacity: .55 }));
+    svg.appendChild(el("line", { x1: bx0, y1: BELT_Y + BELT_H - 5, x2: bx1, y2: BELT_Y + BELT_H - 5, stroke: L, "stroke-width": .6, opacity: .55 }));
     // photo-eyes (ISA instrument bubbles)
     [["pe1", layout.pe1, "PE-001"], ["pe2", layout.pe2, "PE-002"]].forEach(function (p) {
       var X = cx(p[1]);
-      svg.appendChild(el("line", { x1: X, y1: BELT_Y - 16, x2: X, y2: BELT_Y, stroke: L2, "stroke-width": 1 }));
-      svg.appendChild(el("circle", { id: "sv-" + p[0], cx: X, cy: BELT_Y - 22, r: 7, fill: BG, stroke: L, "stroke-width": 1.3 }));
-      svg.appendChild(txt(X, BELT_Y - 34, p[2], INK2, 9, "middle"));
+      svg.appendChild(el("line", { x1: X, y1: BELT_Y - 18, x2: X, y2: BELT_Y, stroke: L2, "stroke-width": 1 }));
+      svg.appendChild(el("circle", { id: "sv-" + p[0], cx: X, cy: BELT_Y - 27, r: 9, fill: BG, stroke: L, "stroke-width": 1.3 }));
+      svg.appendChild(txt(X, BELT_Y - 42, p[2], INK2, 9.5, "middle"));
     });
-    // diverter DV-001 (gate that pivots at the belt)
+    // diverter DV-001 (pivoting gate)
     var dvX = cx(layout.divert);
-    svg.appendChild(el("circle", { cx: dvX, cy: BELT_Y + BELT_H, r: 2.5, fill: L }));
+    svg.appendChild(el("circle", { cx: dvX, cy: BELT_Y + BELT_H, r: 3, fill: L }));
     var arm = el("g", { id: "sv-divarm" });
-    arm.appendChild(el("line", { x1: dvX, y1: BELT_Y + BELT_H, x2: dvX, y2: BELT_Y - 14, stroke: INK, "stroke-width": 3 }));
+    arm.appendChild(el("line", { x1: dvX, y1: BELT_Y + BELT_H, x2: dvX, y2: BELT_Y - 16, stroke: INK, "stroke-width": 3.4 }));
     svg.appendChild(arm);
     svg.appendChild(txt(dvX, BELT_Y + BELT_H + 22, "DV-001", INK2, 9.5, "middle"));
-    // chute spur + bins (outline only)
-    svg.appendChild(el("path", { d: "M" + dvX + " " + BELT_Y + " L" + (A_BIN.x + 20) + " " + (A_BIN.y + 36), fill: "none", stroke: L, "stroke-width": 1.2, "stroke-dasharray": "5 4" }));
+    // chute A spur (up from diverter) + chute B spur (down from belt end)
+    svg.appendChild(el("path", { d: "M" + dvX + " " + BELT_Y + " L" + (A_BIN.x + 16) + " " + (A_BIN.y + 52), fill: "none", stroke: L, "stroke-width": 1.3, "stroke-dasharray": "5 4" }));
+    svg.appendChild(el("path", { d: "M" + bx1 + " " + (BELT_Y + BELT_H) + " L" + (B_BIN.x + 16) + " " + B_BIN.y, fill: "none", stroke: L, "stroke-width": 1.3, "stroke-dasharray": "5 4" }));
     bin("A", A_BIN); bin("B", B_BIN);
     svg.appendChild(el("g", { id: "sv-alarm" }));     // jam alarm indicator (drawn on demand)
     svg.appendChild(el("g", { id: "sv-parcels" }));
   }
   function bin(id, p) {
-    var L = cssv("--line"), INK2 = cssv("--ink-2"), DATA = cssv("--data"), BG = cssv("--bg");
-    svg.appendChild(el("path", { d: "M" + (p.x - 16) + " " + (p.y - 12) + " L" + (p.x - 16) + " " + (p.y + 36) + " L" + (p.x + 96) + " " + (p.y + 36) + " L" + (p.x + 96) + " " + (p.y - 12), fill: BG, stroke: L, "stroke-width": 1.3 }));
-    svg.appendChild(txt(p.x - 8, p.y - 18, "CHUTE " + id, INK2, 11));
-    var c = txt(p.x + 90, p.y - 18, "0", DATA, 14, "end"); c.setAttribute("id", "binc" + id); c.setAttribute("font-weight", "600"); svg.appendChild(c);
+    var L = cssv("--line"), L2 = cssv("--line-2"), INK2 = cssv("--ink-2"), DATA = cssv("--data"), BG = cssv("--bg");
+    var W = 120, H = 54;
+    svg.appendChild(el("path", { d: "M" + p.x + " " + p.y + " v" + H + " h" + W + " v" + (-H), fill: BG, stroke: L, "stroke-width": 1.3 }));
+    svg.appendChild(txt(p.x + 4, p.y - 8, "CHUTE " + id, INK2, 11));
+    var c = txt(p.x + W - 4, p.y - 8, "0", DATA, 15, "end"); c.setAttribute("id", "binc" + id); c.setAttribute("font-weight", "600"); svg.appendChild(c);
+    svg.appendChild(txt(p.x + 8, p.y + H - 24, "LEVEL", INK2, 8.5));
+    svg.appendChild(el("rect", { x: p.x + 8, y: p.y + H - 18, width: W - 16, height: 9, fill: BG, stroke: L2, "stroke-width": .8 }));
+    svg.appendChild(el("rect", { id: "binf" + id, x: p.x + 9, y: p.y + H - 17, width: 0, height: 7, fill: L2 }));
   }
   function parcelEl(dest) {
     var L2 = cssv("--line-2"), RAISED = cssv("--raised"), DATA = cssv("--data");
     var g = el("g", {});
     g.appendChild(el("rect", { width: BOX_W, height: BOX_H, fill: RAISED, stroke: L2, "stroke-width": 1.2 }));
-    g.appendChild(txt(BOX_W / 2, BOX_H - 4.5, dest === 1 ? "A" : "B", DATA, 10, "middle"));
+    g.appendChild(el("line", { x1: 0, y1: 7, x2: BOX_W, y2: 7, stroke: L2, "stroke-width": .7, opacity: .6 }));
+    g.appendChild(txt(BOX_W / 2, BOX_H - 8.5, dest === 1 ? "A" : "B", DATA, 12, "middle"));
     return g;
   }
 
@@ -105,6 +114,7 @@
     drawJamIndicator(st.jam);
     // bins + KPIs (live data colour)
     if ($("bincA")) $("bincA").textContent = st.a; if ($("bincB")) $("bincB").textContent = st.b;
+    binFill("binfA", st.a); binFill("binfB", st.b);
     $("ca").textContent = st.a; $("cb").textContent = st.b; $("st-wip").textContent = st.parcels.length;
     var mins = Math.max(simT / 60, 1e-6), tput = Math.round((st.a + st.b) / mins);
     $("tp").textContent = tput; ptr("tp-ptr", tput, 50); band("tp-band", 8, 36, 50);
@@ -127,6 +137,7 @@
   }
   function ptr(id, v, max) { var e = $(id); if (e) e.style.left = Math.min(Math.max(v / max, 0), 1) * 100 + "%"; }
   function band(id, lo, hi, max) { var e = $(id); if (e) { e.style.left = (lo / max * 100) + "%"; e.style.width = ((hi - lo) / max * 100) + "%"; } }
+  function binFill(id, n) { var e = $(id); if (e) e.setAttribute("width", Math.min(n / 12, 1) * (120 - 18)); }
   function fmt(s) { var m = Math.floor(s / 60), x = Math.floor(s % 60); return (m < 10 ? "0" : "") + m + ":" + (x < 10 ? "0" : "") + x; }
 
   /* ---- trend (thin lines on gray, HP-HMI restraint) ---- */
