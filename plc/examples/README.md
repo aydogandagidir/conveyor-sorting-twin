@@ -6,6 +6,8 @@ a real PLC while keeping the gateway, tag registry and scenarios unchanged.
 
 - `01_basic_conveyor_latch.st` — start/stop/E-stop motor latch (teaching baseline).
 - `02_sorting_cell_mvp.st` — full cell: routing, counting, jam timer (ports `control_logic_mvp.py`).
+- `03_sorting_cell_commissioning.st` — same logic as `02`, but every input is on a master-writable
+  coil/register so the gateway can **drive** the PLC over Modbus (virtual commissioning).
 
 > STATUS: `02_sorting_cell_mvp.st` **compiles and runs on OpenPLC Runtime v3** — verified
 > 2026-06-20 (loaded, compiled with 0 errors, PLC *Running*, gateway smoke test passed). It is
@@ -65,6 +67,15 @@ OPENPLC_HOST=127.0.0.1 OPENPLC_PORT=502 python tests/test_openplc_integration.py
 It skips cleanly when `OPENPLC_HOST` is unset (so CI stays green). **Verified 2026-06-20** against
 OpenPLC Runtime v3 (Docker, host port 1502): with the compiled program *Running*, the gateway
 connected to the slave and read the live I/O image (motor/diverter/jam coils, sensor discrete
-inputs, counter registers) — `1 passed`. Full ST-vs-soft-PLC behavioural equivalence (driving the
-scenarios and comparing counters) remains a guided **manual** procedure, because OpenPLC's input
-image (`%IX` / discrete inputs) is not writable over standard Modbus.
+inputs, counter registers) — `1 passed`.
+
+### Behavioural equivalence (`03_sorting_cell_commissioning.st`)
+`02`'s inputs are `%IX` (discrete inputs), which a Modbus master cannot write — so driving it from
+the twin needs the commissioning variant, whose inputs live on master-writable coils/registers.
+With `03` loaded, compiled and **running** on OpenPLC:
+```bash
+OPENPLC_HOST=127.0.0.1 OPENPLC_PORT=1502 python tests/test_openplc_behavioral.py
+```
+drives a two-parcel sort over Modbus and asserts the **real PLC's** outputs and counters match the
+Python soft-PLC (`control_logic_mvp`). Verified 2026-06-20: `1 passed`, idempotent (it zeroes the
+`%QW` counters each run).

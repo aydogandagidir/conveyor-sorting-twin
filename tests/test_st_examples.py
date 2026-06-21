@@ -19,8 +19,9 @@ def _read(name):
         return f.read()
 
 
-def test_both_examples_present_and_wellformed():
-    for name in ("01_basic_conveyor_latch.st", "02_sorting_cell_mvp.st"):
+def test_examples_present_and_wellformed():
+    for name in ("01_basic_conveyor_latch.st", "02_sorting_cell_mvp.st",
+                 "03_sorting_cell_commissioning.st"):
         src = _read(name)
         assert src.strip(), f"{name} is empty"
         assert src.count("END_PROGRAM") == 1, f"{name}: expected exactly one END_PROGRAM"
