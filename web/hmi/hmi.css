@@ -51,6 +51,8 @@ button{font-family:inherit}
 .bar .field .v{font-size:13px;font-weight:600}
 .bar .comms{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-2)}
 .bar .comms .b{width:8px;height:8px;border:1px solid var(--line-2);background:var(--on)}
+.thbtn{margin-left:8px;background:var(--raised);color:var(--ink-2);border:1px solid var(--line);padding:6px 10px;font-size:11.5px;font-family:inherit;cursor:pointer}
+.thbtn:hover{border-color:var(--line-2);color:var(--ink)}
 
 /* ---- alarm banner (docked, highest priority + latest) ---- */
 .banner{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;
@@ -69,8 +71,18 @@ button{font-family:inherit}
   color:var(--ink-2);background:var(--raised);border:1px solid var(--line);border-top:none}
 .crumb b{color:var(--ink);font-weight:600}
 .crumb .lv{margin-left:auto;display:flex;gap:4px}
-.crumb .lv span{padding:2px 8px;border:1px solid var(--line);color:var(--ink-2);font-size:11px}
-.crumb .lv .cur{background:var(--panel);color:var(--ink);font-weight:600}
+.crumb .lv button{padding:3px 9px;border:1px solid var(--line);background:var(--raised);color:var(--ink-2);font-size:11px;font-family:inherit;cursor:pointer}
+.crumb .lv button:hover{border-color:var(--line-2);color:var(--ink)}
+.crumb .lv button.cur{background:var(--panel);color:var(--ink);font-weight:600;border-color:var(--ink-2)}
+/* L3 I/O detail */
+#view-io{max-height:420px;overflow:auto}
+#view-io .h2{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;padding:9px 10px 4px}
+.io-t{width:100%;border-collapse:collapse;font-size:12.5px}
+.io-t th{position:sticky;top:0;background:var(--raised);text-align:left;color:var(--ink-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;padding:7px 10px;border-bottom:1px solid var(--line)}
+.io-t td{padding:7px 10px;border-bottom:1px solid var(--line)}
+.io-t .tag,.io-t .addr{font-family:var(--mono);color:var(--ink-2)}
+.io-t .val{font-family:var(--mono);font-weight:600;color:var(--data);text-align:right}
+.io-t .st0{color:var(--ink-2)}
 
 /* ---- main layout: mimic + right rail ---- */
 .main{display:grid;grid-template-columns:1fr 262px;gap:10px;margin-top:10px}

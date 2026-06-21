@@ -19,6 +19,7 @@
     <span class="field"><span class="l">Scan</span><span class="v num" id="scan">50 ms</span></span>
     <span class="field"><span class="l">Clock</span><span class="v num" id="clock">--:--:--</span></span>
     <span class="field"><span class="l">Mode</span><span class="comms"><span class="b"></span><span id="mode">REPLAY</span></span></span>
+    <button class="thbtn" id="theme" title="Toggle light / dark theme">◐ Theme</button>
   </div>
 
   <!-- docked alarm banner: highest-priority + latest -->
@@ -30,13 +31,15 @@
 
   <!-- display hierarchy breadcrumb -->
   <div class="crumb">
-    <span>Plant</span><span>▸</span><span>Line 01</span><span>▸</span><b>Sorting Cell</b>
-    <span class="lv"><span>L1</span><span class="cur">L2</span><span>L3</span></span>
+    <span>Plant</span><span>▸</span><span>Line 01</span><span>▸</span><b id="crumb-leaf">Sorting Cell</b>
+    <span class="lv"><button id="lv1">L1 · Line</button><button id="lv2" class="cur">L2 · Cell</button><button id="lv3">L3 · I/O</button></span>
   </div>
 
   <div class="main">
     <div class="mimic">
       <svg id="cell" viewBox="0 0 960 440" role="img" aria-label="Conveyor sorting cell mimic"></svg>
+      <svg id="view-line" viewBox="0 0 960 440" style="display:none;width:100%;height:auto" role="img" aria-label="Line overview"></svg>
+      <div id="view-io" style="display:none"></div>
     </div>
     <div class="rail">
       <div class="fp">
