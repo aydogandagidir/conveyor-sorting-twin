@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340">
+  <rect x="0" y="0" width="760" height="340" fill="#0d1117"/>
+  <text x="24" y="34" fill="#e6edf3" font-family="Segoe UI,Arial" font-size="20" font-weight="700">OpenLogiTwin — Sorting Cell</text>
+  <text x="24" y="56" fill="#9198a1" font-family="Segoe UI,Arial" font-size="12">live mimic (FUXA / Modbus)</text>
+
+  <!-- conveyor belt -->
+  <rect x="60" y="150" width="520" height="40" rx="6" fill="#21262d" stroke="#30363d"/>
+  <text x="60" y="210" fill="#6e7681" font-family="Arial" font-size="11">infeed</text>
+
+  <!-- photo-eyes -->
+  <circle cx="160" cy="170" r="6" fill="#2f81f7"/><text x="146" y="138" fill="#9198a1" font-family="Arial" font-size="11">PE_001</text>
+  <circle cx="460" cy="170" r="6" fill="#2f81f7"/><text x="446" y="138" fill="#9198a1" font-family="Arial" font-size="11">PE_002</text>
+
+  <!-- diverter + chutes -->
+  <rect x="500" y="120" width="14" height="50" rx="3" fill="#d29922"/>
+  <rect x="600" y="90"  width="120" height="44" rx="6" fill="#132a1a" stroke="#3fb950"/>
+  <text x="612" y="116" fill="#3fb950" font-family="Arial" font-size="13">CHUTE A</text>
+  <rect x="600" y="186" width="120" height="44" rx="6" fill="#2a1a13" stroke="#f0883e"/>
+  <text x="612" y="212" fill="#f0883e" font-family="Arial" font-size="13">CHUTE B</text>
+
+  <!-- live readouts (bound by FUXA to the device tags) -->
+  <g font-family="Consolas,monospace" font-size="15">
+    <text x="80"  y="280" fill="#9198a1" font-size="12">MOTOR</text>
+    <text id="val_motor"    x="80"  y="300" fill="#3fb950">0</text>
+    <text x="200" y="280" fill="#9198a1" font-size="12">DIVERTER</text>
+    <text id="val_diverter" x="200" y="300" fill="#d29922">0</text>
+    <text x="330" y="280" fill="#9198a1" font-size="12">JAM</text>
+    <text id="val_jam"      x="330" y="300" fill="#f85149">0</text>
+    <text x="450" y="280" fill="#9198a1" font-size="12">COUNT A</text>
+    <text id="val_count_a"  x="450" y="300" fill="#3fb950">0</text>
+    <text x="590" y="280" fill="#9198a1" font-size="12">COUNT B</text>
+    <text id="val_count_b"  x="590" y="300" fill="#f0883e">0</text>
+  </g>
+</svg>
