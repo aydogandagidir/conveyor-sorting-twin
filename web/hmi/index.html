@@ -88,6 +88,7 @@
     <button class="btn" id="b-stop">Stop</button>
     <button class="btn" id="b-reset">Reset</button>
     <button class="btn est" id="b-est">E-STOP</button>
+    <button class="btn" id="b-jam" style="display:none">Inject jam</button>
     <div class="sep"></div>
     <select id="scenario" aria-label="Scenario"></select>
     <button class="btn play" id="play">⏸ Pause</button>
@@ -95,6 +96,8 @@
       <option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
     <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Timeline">
     <span class="tspan" id="time">0.0 / 0.0 s</span>
+    <div class="sep"></div>
+    <button class="btn" id="go-live">● Go live</button>
   </div>
   <div class="hint" id="hint">Traces not found — serve over HTTP (<code>python -m http.server</code> from the repo root → open <code>/web/hmi/</code>) or use GitHub Pages.</div>
   <div class="foot">High-performance HMI (ISA-101 / ISA-18.2) · replays a deterministic <code>scene_model.py</code> trace — the plant the test suite verifies.</div>
