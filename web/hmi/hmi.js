@@ -12,7 +12,7 @@
   var A_BIN = { x: 690, y: 118 }, B_BIN = { x: 798, y: 338 };
   var frames = [], dt = 0.05, dur = 0, layout = null;
   var simT = 0, playing = true, speed = 1, lastIdx = -1, lastTick = null, lastSt = null;
-  var vis = new Map(), spark = [], alarms = [], alarmSeq = 0, jamActive = false, estopLatched = false;
+  var vis = new Map(), spark = [], alarms = [], alarmSeq = 0, level = 2;
 
   function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
   function txt(x, y, s, fill, sz, anchor) { var t = el("text", { x: x, y: y, "font-size": sz || 11, fill: fill, "font-family": "system-ui,Segoe UI,Arial" }); if (anchor) t.setAttribute("text-anchor", anchor); t.textContent = s; return t; }
@@ -129,6 +129,7 @@
     $("seek").value = Math.round(simT / dur * 1000) || 0;
     $("time").textContent = simT.toFixed(1) + " / " + dur.toFixed(1) + " s";
     drawTrend(); drawSpark();
+    if (level === 1) updateLine(st); else if (level === 3) updateIO(st);
     logTransitions(st.i);
   }
   function drawJamIndicator(on) {
@@ -258,6 +259,69 @@
   setInterval(tick, 33);
   setInterval(function () { var d = new Date(); $("clock").textContent = d.toTimeString().slice(0, 8); }, 1000);
 
+  function applyTheme(t) {
+    if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    else document.documentElement.removeAttribute("data-theme");
+    try { localStorage.setItem("oltwin-theme", t); } catch (e) {}
+    if (layout) { clearVis(); drawStatic(); }   // SVG colours read CSS vars at draw time
+    if ($("view-line")) { $("view-line").innerHTML = ""; if (level === 1) { drawLine(); if (lastSt) updateLine(lastSt); } }
+  }
+
+  /* ---- display hierarchy: L1 line overview / L2 cell mimic / L3 I/O detail ---- */
+  function setLevel(n) {
+    level = n;
+    $("cell").style.display = n === 2 ? "" : "none";
+    $("view-line").style.display = n === 1 ? "" : "none";
+    $("view-io").style.display = n === 3 ? "" : "none";
+    ["lv1", "lv2", "lv3"].forEach(function (id, i) { $(id).className = (i + 1 === n) ? "cur" : ""; });
+    $("crumb-leaf").textContent = n === 1 ? "Line overview" : n === 3 ? "I/O detail" : "Sorting Cell";
+    if (n === 1 && !$("view-line").childElementCount) drawLine();
+    if (lastSt) { if (n === 1) updateLine(lastSt); else if (n === 3) updateIO(lastSt); }
+  }
+  function drawLine() {
+    var s = $("view-line"); s.innerHTML = "";
+    var L = cssv("--line"), L2 = cssv("--line-2"), INK = cssv("--ink"), INK2 = cssv("--ink-2"), BG = cssv("--bg"), D = cssv("--data");
+    function block(x, y, w, h, fp) { var r = el("rect", { x: x, y: y, width: w, height: h, fill: BG, stroke: L, "stroke-width": 1.4 }); if (fp) { r.setAttribute("data-fp", ""); r.onclick = function () { setLevel(2); }; } s.appendChild(r); }
+    function arrow(x1, y1, x2, y2) { s.appendChild(el("line", { x1: x1, y1: y1, x2: x2, y2: y2, stroke: L2, "stroke-width": 1.4 })); s.appendChild(el("path", { d: "M" + x2 + " " + y2 + " l-9 -4 m9 4 l-9 4", fill: "none", stroke: L2, "stroke-width": 1.4 })); }
+    s.appendChild(txt(60, 34, "LINE 01 — OVERVIEW", INK2, 12));
+    block(60, 196, 150, 88); s.appendChild(txt(135, 246, "INFEED", INK, 13, "middle"));
+    arrow(210, 240, 298, 240);
+    block(300, 168, 230, 150, true);
+    s.appendChild(txt(415, 196, "SORTING CELL", INK, 13, "middle")); s.appendChild(txt(415, 214, "CONV-001 · DV-001", INK2, 10, "middle"));
+    s.appendChild(txt(318, 252, "Status", INK2, 11)); var ls = txt(512, 252, "—", INK, 12, "end"); ls.setAttribute("id", "line-status"); ls.setAttribute("font-weight", "600"); s.appendChild(ls);
+    s.appendChild(txt(318, 276, "Throughput", INK2, 11)); var lt = txt(512, 276, "0 /min", D, 12, "end"); lt.setAttribute("id", "line-tput"); lt.setAttribute("font-weight", "600"); s.appendChild(lt);
+    s.appendChild(el("g", { id: "line-alarm" }));
+    arrow(530, 220, 658, 166); arrow(530, 252, 658, 296);
+    block(660, 130, 200, 76); s.appendChild(txt(674, 158, "CHUTE A", INK2, 12)); var ca = txt(844, 178, "0", D, 20, "end"); ca.setAttribute("id", "line-ca"); ca.setAttribute("font-weight", "600"); s.appendChild(ca);
+    block(660, 258, 200, 76); s.appendChild(txt(674, 286, "CHUTE B", INK2, 12)); var cb = txt(844, 306, "0", D, 20, "end"); cb.setAttribute("id", "line-cb"); cb.setAttribute("font-weight", "600"); s.appendChild(cb);
+    s.appendChild(txt(415, 344, "click the cell to drill down  ▸ L2", INK2, 10, "middle"));
+  }
+  function updateLine(st) {
+    var ls = $("line-status"); if (ls) { ls.textContent = st.jam ? "JAM" : st.motor ? "RUN" : "STOP"; ls.setAttribute("fill", st.jam ? cssv("--p1") : cssv("--ink")); }
+    var mins = Math.max(simT / 60, 1e-6);
+    if ($("line-tput")) $("line-tput").textContent = Math.round((st.a + st.b) / mins) + " /min";
+    if ($("line-ca")) $("line-ca").textContent = st.a; if ($("line-cb")) $("line-cb").textContent = st.b;
+    var g = $("line-alarm"); if (g) { g.innerHTML = ""; if (st.jam) { g.appendChild(el("path", { d: "M324 250 l11 19 l-22 0 z", fill: cssv("--p1") })); g.appendChild(txt(324, 266, "!", "#fff", 12, "middle")); } }
+  }
+  function updateIO(st) {
+    var rows = [
+      ["sensor.pe_001", "Discrete In", "coil 0", st.pe1, st.pe1 ? "BLOCKED" : "clear", 0],
+      ["sensor.pe_002", "Discrete In", "coil 1", st.pe2, st.pe2 ? "BLOCKED" : "clear", 0],
+      ["output.motor_conv_001_run", "Discrete Out", "DI 0", st.motor, st.motor ? "RUN" : "STOP", 0],
+      ["output.diverter_dv_001_extend", "Discrete Out", "DI 1", st.diverter, st.diverter ? "EXTEND" : "retract", 0],
+      ["alarm.jam_001", "Discrete Out", "DI 2", st.jam, st.jam ? "ALARM" : "ok", st.jam ? 1 : 0],
+      ["counter.sorted_chute_a", "Int16", "IR 0", st.a, "—", 0],
+      ["counter.sorted_chute_b", "Int16", "IR 1", st.b, "—", 0]
+    ];
+    var h = '<div class="h2">Sorting cell — live I/O image · sorting_cell_mvp registry</div>' +
+      '<table class="io-t"><thead><tr><th>Tag</th><th>Type</th><th>Address</th><th>Value</th><th>State</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      var v = typeof r[3] === "boolean" ? (r[3] ? "1" : "0") : r[3];
+      h += "<tr><td class='tag'>" + r[0] + "</td><td>" + r[1] + "</td><td class='addr'>" + r[2] + "</td><td class='val'>" + v + "</td><td" + (r[5] ? " style='color:var(--p1);font-weight:600'" : " class='st0'") + ">" + r[4] + "</td></tr>";
+    });
+    $("view-io").innerHTML = h + "</tbody></table>";
+  }
+
   function loadTrace(name) {
     return fetch("traces/" + name + ".json").then(function (r) { return r.json(); }).then(function (t) {
       frames = t.frames; dt = t.dt; layout = t.layout; dur = (frames.length - 1) * dt;
@@ -283,5 +347,8 @@
   $("fp-x").onclick = closeFp;
   $("fp-ov").onclick = function (e) { if (e.target === $("fp-ov")) closeFp(); };
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeFp(); });
+  $("theme").onclick = function () { applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"); };
+  $("lv1").onclick = function () { setLevel(1); }; $("lv2").onclick = function () { setLevel(2); }; $("lv3").onclick = function () { setLevel(3); };
+  try { if (localStorage.getItem("oltwin-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}
   init();
 })();

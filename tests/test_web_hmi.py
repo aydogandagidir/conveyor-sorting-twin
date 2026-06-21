@@ -42,6 +42,15 @@ def test_faceplate_and_alarm_rationalisation_present():
     assert "openFp" in js and "Corrective action" in js, "alarm rationalisation faceplate missing"
 
 
+def test_display_hierarchy_and_theme_present():
+    html = _read(HMI, "index.html")
+    assert 'id="lv1"' in html and 'id="lv3"' in html, "level navigation chips missing"
+    assert 'id="view-line"' in html and 'id="view-io"' in html, "L1/L3 views missing"
+    assert 'id="theme"' in html, "theme toggle missing"
+    js = _read(HMI, "hmi.js")
+    assert "setLevel" in js and "data-theme" in js, "nav/theme logic missing"
+
+
 def test_engine_loads_traces_and_is_interval_driven():
     js = _read(HMI, "hmi.js")
     assert "traces/index.json" in js and 'fetch("traces/' in js, "engine must load traces"
