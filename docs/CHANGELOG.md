@@ -20,6 +20,11 @@ formal release tags). Dates are UTC.
 
 ## [Unreleased]
 
+### Added
+- **Modbus robustness** (A8, ADR-0008): `ModbusTCPClient` auto-reconnects once on a dropped socket
+  and retries; new `uint32` / `float32` multi-word register types (big-endian codec in
+  `modbus_tcp.py` + word-aware `TagGateway`). `tests/test_modbus_robustness.py`.
+
 ## [0.4.0] — 2026-06-20
 
 Hardening & integration release: the three protocols are now exercised end-to-end (MQTT streaming

@@ -34,8 +34,9 @@ Each landed via branch → PR → CI → merge.
 - ✅ Performance/throughput test + `docs/PERFORMANCE.md` baseline.
 - ✅ Richer GitHub Pages landing page (`web/index.html`).
 - ✅ OPC UA full-loop bridge — a full sorting cycle runs end-to-end over OPC UA.
-- ⬜ (Optional, low priority) Modbus connection health/reconnect; multi-word register types
-  (uint32/float32). Not required for any current scenario.
+- ✅ Modbus robustness (v0.5.0) — `ModbusTCPClient` auto-reconnects once on a dropped socket;
+  `uint32`/`float32` multi-word register types via a codec + word-aware gateway
+  (ADR-0008, `tests/test_modbus_robustness.py`).
 
 ## Track B — external runtimes (verified headlessly in Docker, 2026-06-20)
 - ✅ **Real OpenPLC Runtime** — `02_sorting_cell_mvp.st` compiles + runs (connectivity harness
