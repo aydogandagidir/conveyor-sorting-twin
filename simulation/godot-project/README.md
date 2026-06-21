@@ -19,14 +19,23 @@ python scripts/run_scenario.py scenarios/barcode_sorting_basic.json
 python scripts/run_scenario.py scenarios/jam_recovery_basic.json
 ```
 
-## Phase 3 scaffold (best-effort — verify in Godot 4.x)
-- `project.godot` — minimal Godot 4.x project (autoloads `cell_bridge.gd`).
+## The scene (authored + verified headless on Godot 4.2)
+- `project.godot` — Godot 4.2 project; main scene `cell.tscn`, autoloads `cell_bridge.gd`.
+- `cell.tscn` / `cell.gd` — the 3-D sorting cell (conveyor, PE markers, chutes, stacklight) and its
+  controller: spawns parcels, moves them on the motor output, routes on the diverter, and reports
+  `pe_001`/`pe_002` + the scanned destination back to the PLC.
 - `modbus_client.gd` — Modbus TCP client in GDScript (MBAP + FC 01–06), mirrors
   `protocol-gateway/modbus_tcp.py`.
-- `cell_bridge.gd` — autoload that writes sensor/button tags and reads actuator/counter
-  tags using the `tags.sorting_cell_mvp.json` addresses.
+- `cell_bridge.gd` — autoload that writes sensor/button tags and reads actuator/counter tags using
+  the `tags.sorting_cell_mvp.json` addresses (drift-guarded by `tests/test_godot_project.py`).
 
-These are **scaffolds**: open the project in Godot 4.x, build the scene per
-`docs/GODOT_SCENE.md`, and wire its physics to `CellBridge.write_sensors(...)` /
-`CellBridge.read_outputs()`. The `.tscn` scene is authored in the editor (not committed).
-Start the PLC first: `OLTWIN_REGISTRY=sorting_cell_mvp OLTWIN_CONTROL=control_logic_mvp python scripts/run_soft_plc.py`.
+### Run it
+Start the soft-PLC, then run the scene (the line auto-starts):
+```bash
+OLTWIN_REGISTRY=sorting_cell_mvp OLTWIN_CONTROL=control_logic_mvp python scripts/run_soft_plc.py &
+godot --path simulation/godot-project        # or open the project in the Godot 4.2 editor
+```
+**Verified 2026-06-20** on Godot 4.2 headless: the project imports and runs with **0 script
+errors**, `CellBridge` connects to the soft-PLC, and the scene drives **real sorts over Modbus**
+(both chute counters increment). Visual polish (meshes, animation) is done in the editor;
+`scene_model.py` stays the deterministic test oracle.
