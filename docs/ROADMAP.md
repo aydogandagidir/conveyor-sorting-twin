@@ -37,10 +37,11 @@ Each landed via branch → PR → CI → merge.
 - ⬜ (Optional, low priority) Modbus connection health/reconnect; multi-word register types
   (uint32/float32). Not required for any current scenario.
 
-## Remaining — Track B (needs an external runtime; scaffolds + guides ready)
-- 🔒 **FUXA SVG mimic screens** — import `generate_fuxa_project.py` output, draw mimic, bind widgets
-  (`hmi/fuxa/INTEGRATION.md`). Optional docker/Selenium e2e smoke test.
-- 🔒 **Real OpenPLC Runtime v4** — load `plc/examples/02_sorting_cell_mvp.st`, configure the Modbus
-  slave, run the connectivity harness (`OPENPLC_HOST=... python tests/test_openplc_integration.py`).
-- 🔒 **Godot 3D scene** — author the `.tscn` per `docs/GODOT_SCENE.md`; wire physics to `cell_bridge.gd`.
-  `scene_model.py` stays the deterministic test oracle.
+## Track B — external runtimes (verified headlessly in Docker, 2026-06-20)
+- ✅ **Real OpenPLC Runtime** — `02_sorting_cell_mvp.st` compiles + runs (connectivity harness
+  passes); `03_sorting_cell_commissioning.st` is driven over Modbus and **matches the soft-PLC**
+  (`tests/test_openplc_behavioral.py`). Found+fixed a MatIEC compile bug (separate VAR blocks).
+- 🟡 **FUXA HMI** — data path verified: the generated project connects + polls the twin and live
+  values propagate (`hmi/fuxa/INTEGRATION.md`). Mimic SVG screens: in progress (generated + injected).
+- ⬜ **Godot 3D scene** — author the `.tscn` per `docs/GODOT_SCENE.md`, validate with Godot headless,
+  wire the bridge to `cell_bridge.gd`. `scene_model.py` stays the deterministic test oracle.
