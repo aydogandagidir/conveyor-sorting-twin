@@ -53,5 +53,9 @@ In FUXA → **Devices** → add a **Modbus TCP** device:
   tags). **Verified 2026-06-20**: imported into FUXA v1.3.3 via its API, the device connects and
   polls the soft-PLC, and live values propagate (e.g. `data.parcel_destination` 1→2→7 tracked).
   FUXA's own Modbus lib (`modbus-serial`) reads all four function codes from the twin cleanly.
-- ⬜ SVG mimic screens — drawn in the FUXA editor and bound to the imported tags (cosmetic; the
-  data path above is independent of the drawing).
+- ✅ SVG mimic screen — generated + injected by `scripts/generate_fuxa_view.py`
+  (`mimic_sorting_cell.svg` + `hmi.views[0]`). FUXA persists it with **5 live readouts** (motor,
+  diverter, jam, count A/B) bound to the device tags (`variableId = deviceId + tagId`, verified
+  2026-06-20). Import the project and open the *SortingCell* view to see it animate; polish the
+  layout in the FUXA editor. Regenerate after `generate_fuxa_project.py` (the view rides on the
+  same project file).

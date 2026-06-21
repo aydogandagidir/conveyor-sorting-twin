@@ -41,8 +41,9 @@ Each landed via branch → PR → CI → merge.
 - ✅ **Real OpenPLC Runtime** — `02_sorting_cell_mvp.st` compiles + runs (connectivity harness
   passes); `03_sorting_cell_commissioning.st` is driven over Modbus and **matches the soft-PLC**
   (`tests/test_openplc_behavioral.py`). Found+fixed a MatIEC compile bug (separate VAR blocks).
-- 🟡 **FUXA HMI** — data path verified: the generated project connects + polls the twin and live
-  values propagate (`hmi/fuxa/INTEGRATION.md`). Mimic SVG screens: in progress (generated + injected).
+- ✅ **FUXA HMI** — data path verified (the generated project connects + polls the twin, live values
+  propagate); mimic SVG screen generated + injected, FUXA persists it with 5 readouts bound to the
+  device tags (`scripts/generate_fuxa_view.py`, drift-guarded by `tests/test_fuxa_view.py`).
 - ✅ **Godot 3D scene** — `cell.tscn` + `cell.gd` author the cell; verified on Godot 4.2 headless
   (imports + runs with 0 errors, bridge connects, drives real sorts over Modbus). `scene_model.py`
   stays the deterministic oracle; visual polish is editor work. Drift-guarded by `tests/test_godot_project.py`.

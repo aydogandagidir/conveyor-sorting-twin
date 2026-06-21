@@ -154,19 +154,63 @@
       "layout": {},
       "views": [
         {
-          "id": "fdc9697a3d2eb5db7",
-          "items": {},
-          "name": "Control Panel",
+          "id": "view_mimic",
+          "name": "SortingCell",
           "profile": {
-            "bkcolor": "#0f172a",
-            "height": 600,
-            "margin": 10,
-            "width": 800
+            "width": 760,
+            "height": 340,
+            "bkcolor": "#0d1117",
+            "margin": 10
           },
-          "property": {},
-          "svgcontent": "",
-          "type": "svg",
-          "variables": {}
+          "svgcontent": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"760\" height=\"340\" viewBox=\"0 0 760 340\">\n  <rect x=\"0\" y=\"0\" width=\"760\" height=\"340\" fill=\"#0d1117\"/>\n  <text x=\"24\" y=\"34\" fill=\"#e6edf3\" font-family=\"Segoe UI,Arial\" font-size=\"20\" font-weight=\"700\">OpenLogiTwin \u2014 Sorting Cell</text>\n  <text x=\"24\" y=\"56\" fill=\"#9198a1\" font-family=\"Segoe UI,Arial\" font-size=\"12\">live mimic (FUXA / Modbus)</text>\n\n  <!-- conveyor belt -->\n  <rect x=\"60\" y=\"150\" width=\"520\" height=\"40\" rx=\"6\" fill=\"#21262d\" stroke=\"#30363d\"/>\n  <text x=\"60\" y=\"210\" fill=\"#6e7681\" font-family=\"Arial\" font-size=\"11\">infeed</text>\n\n  <!-- photo-eyes -->\n  <circle cx=\"160\" cy=\"170\" r=\"6\" fill=\"#2f81f7\"/><text x=\"146\" y=\"138\" fill=\"#9198a1\" font-family=\"Arial\" font-size=\"11\">PE_001</text>\n  <circle cx=\"460\" cy=\"170\" r=\"6\" fill=\"#2f81f7\"/><text x=\"446\" y=\"138\" fill=\"#9198a1\" font-family=\"Arial\" font-size=\"11\">PE_002</text>\n\n  <!-- diverter + chutes -->\n  <rect x=\"500\" y=\"120\" width=\"14\" height=\"50\" rx=\"3\" fill=\"#d29922\"/>\n  <rect x=\"600\" y=\"90\"  width=\"120\" height=\"44\" rx=\"6\" fill=\"#132a1a\" stroke=\"#3fb950\"/>\n  <text x=\"612\" y=\"116\" fill=\"#3fb950\" font-family=\"Arial\" font-size=\"13\">CHUTE A</text>\n  <rect x=\"600\" y=\"186\" width=\"120\" height=\"44\" rx=\"6\" fill=\"#2a1a13\" stroke=\"#f0883e\"/>\n  <text x=\"612\" y=\"212\" fill=\"#f0883e\" font-family=\"Arial\" font-size=\"13\">CHUTE B</text>\n\n  <!-- live readouts (bound by FUXA to the device tags) -->\n  <g font-family=\"Consolas,monospace\" font-size=\"15\">\n    <text x=\"80\"  y=\"280\" fill=\"#9198a1\" font-size=\"12\">MOTOR</text>\n    <text id=\"val_motor\"    x=\"80\"  y=\"300\" fill=\"#3fb950\">0</text>\n    <text x=\"200\" y=\"280\" fill=\"#9198a1\" font-size=\"12\">DIVERTER</text>\n    <text id=\"val_diverter\" x=\"200\" y=\"300\" fill=\"#d29922\">0</text>\n    <text x=\"330\" y=\"280\" fill=\"#9198a1\" font-size=\"12\">JAM</text>\n    <text id=\"val_jam\"      x=\"330\" y=\"300\" fill=\"#f85149\">0</text>\n    <text x=\"450\" y=\"280\" fill=\"#9198a1\" font-size=\"12\">COUNT A</text>\n    <text id=\"val_count_a\"  x=\"450\" y=\"300\" fill=\"#3fb950\">0</text>\n    <text x=\"590\" y=\"280\" fill=\"#9198a1\" font-size=\"12\">COUNT B</text>\n    <text id=\"val_count_b\"  x=\"590\" y=\"300\" fill=\"#f0883e\">0</text>\n  </g>\n</svg>",
+          "items": {
+            "val_motor": {
+              "id": "val_motor",
+              "type": "svg-ext-value",
+              "name": "output.motor_conv_001_run",
+              "property": {
+                "variableId": "fab51ca7ca3f851eaf88b21351435f5590",
+                "permission": 0
+              }
+            },
+            "val_diverter": {
+              "id": "val_diverter",
+              "type": "svg-ext-value",
+              "name": "output.diverter_dv_001_extend",
+              "property": {
+                "variableId": "fab51ca7ca3f851eaf553dd8c6241b538c",
+                "permission": 0
+              }
+            },
+            "val_jam": {
+              "id": "val_jam",
+              "type": "svg-ext-value",
+              "name": "alarm.jam_001",
+              "property": {
+                "variableId": "fab51ca7ca3f851eaf93635915b7fb5847",
+                "permission": 0
+              }
+            },
+            "val_count_a": {
+              "id": "val_count_a",
+              "type": "svg-ext-value",
+              "name": "counter.sorted_chute_a",
+              "property": {
+                "variableId": "fab51ca7ca3f851eaf1dc97e2366e45116",
+                "permission": 0
+              }
+            },
+            "val_count_b": {
+              "id": "val_count_b",
+              "type": "svg-ext-value",
+              "name": "counter.sorted_chute_b",
+              "property": {
+                "variableId": "fab51ca7ca3f851eaff9412c4a63e45268",
+                "permission": 0
+              }
+            }
+          },
+          "variables": []
         }
       ]
     },
