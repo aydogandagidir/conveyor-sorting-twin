@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 VALID_TABLES = {"coil", "discrete_input", "holding_register", "input_register"}
-VALID_TYPES = {"bool", "uint16"}
+VALID_TYPES = {"bool", "uint16", "uint32", "float32"}
 VALID_DIRECTIONS = {"sim_to_plc", "plc_to_sim"}
 
 # Modbus master semantics: a master may WRITE coils/holding_registers and only
@@ -39,7 +39,14 @@ class Tag:
     def default_value(self):
         if self.initial is not None:
             return self.initial
-        return False if self.type == "bool" else 0
+        if self.type == "bool":
+            return False
+        return 0.0 if self.type == "float32" else 0
+
+    @property
+    def word_count(self) -> int:
+        """16-bit registers this tag occupies (2 for uint32/float32, else 1)."""
+        return 2 if self.type in ("uint32", "float32") else 1
 
 
 class TagRegistry:

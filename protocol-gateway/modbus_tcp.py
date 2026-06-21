@@ -239,6 +239,28 @@ class ModbusTCPServer:
 
 
 # =============================================================================
+# Multi-word register codec (uint32 / float32 across two 16-bit registers)
+# Big-endian word order (high word first) — the common Modbus convention.
+# =============================================================================
+def encode_registers(value_type: str, value) -> list:
+    """Encode a value to a list of 16-bit register words."""
+    if value_type == "uint32":
+        return list(struct.unpack(">HH", struct.pack(">I", int(value) & 0xFFFFFFFF)))
+    if value_type == "float32":
+        return list(struct.unpack(">HH", struct.pack(">f", float(value))))
+    return [int(value) & 0xFFFF]            # bool / uint16 -> single word
+
+
+def decode_registers(value_type: str, words):
+    """Decode 16-bit register words back to a value."""
+    if value_type == "uint32":
+        return struct.unpack(">I", struct.pack(">HH", words[0] & 0xFFFF, words[1] & 0xFFFF))[0]
+    if value_type == "float32":
+        return struct.unpack(">f", struct.pack(">HH", words[0] & 0xFFFF, words[1] & 0xFFFF))[0]
+    return int(words[0])
+
+
+# =============================================================================
 # Client (Modbus master)
 # =============================================================================
 class ModbusTCPClient:
@@ -269,20 +291,29 @@ class ModbusTCPClient:
             finally:
                 self._sock = None
 
-    def _request(self, function: int, data: bytes) -> bytes:
+    def _request(self, function: int, data: bytes, _allow_reconnect: bool = True) -> bytes:
         if self._sock is None:
             raise ConnectionError("ModbusTCPClient is not connected")
-        with self._lock:
-            self._txn = (self._txn + 1) & 0xFFFF
-            body = bytes([self.unit, function]) + data
-            self._sock.sendall(struct.pack(">HHH", self._txn, 0, len(body)) + body)
-            header = _recv_exact(self._sock, 6)
-            if header is None:
-                raise ConnectionError("connection closed by peer")
-            _txn, _proto, length = struct.unpack(">HHH", header)
-            resp_body = _recv_exact(self._sock, length)
-            if resp_body is None:
-                raise ConnectionError("connection closed by peer")
+        try:
+            with self._lock:
+                self._txn = (self._txn + 1) & 0xFFFF
+                body = bytes([self.unit, function]) + data
+                self._sock.sendall(struct.pack(">HHH", self._txn, 0, len(body)) + body)
+                header = _recv_exact(self._sock, 6)
+                if header is None:
+                    raise ConnectionError("connection closed by peer")
+                _txn, _proto, length = struct.unpack(">HHH", header)
+                resp_body = _recv_exact(self._sock, length)
+                if resp_body is None:
+                    raise ConnectionError("connection closed by peer")
+        except (OSError, ConnectionError):
+            # Transport failure (dropped socket): reconnect once and retry. A ModbusError
+            # exception response is NOT caught here — that is a valid reply, not a drop.
+            if not _allow_reconnect:
+                raise
+            self.close()
+            self.connect()
+            return self._request(function, data, _allow_reconnect=False)
         resp_pdu = resp_body[1:]
         fc = resp_pdu[0]
         if fc & 0x80:

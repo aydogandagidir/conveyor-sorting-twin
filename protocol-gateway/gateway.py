@@ -10,6 +10,8 @@ registers (sensors, setpoints) and read any table.
 """
 from __future__ import annotations
 
+from modbus_tcp import encode_registers, decode_registers
+
 _READERS = {
     "coil": "read_coils",
     "discrete_input": "read_discrete_inputs",
@@ -34,8 +36,10 @@ class TagGateway:
     def read_tag(self, name: str):
         tag = self.registry.get(name)
         reader = getattr(self.client, _READERS[tag.table])
-        raw = reader(tag.address, 1)[0]
-        return bool(raw) if tag.type == "bool" else int(raw)
+        words = reader(tag.address, tag.word_count)
+        if tag.type == "bool":
+            return bool(words[0])
+        return decode_registers(tag.type, words)   # uint16/uint32/float32
 
     def write_tag(self, name: str, value):
         tag = self.registry.get(name)
@@ -45,8 +49,9 @@ class TagGateway:
             )
         if tag.table == "coil":
             self.client.write_coil(tag.address, bool(value))
-        else:
-            self.client.write_register(tag.address, int(value))
+            return
+        for offset, word in enumerate(encode_registers(tag.type, value)):
+            self.client.write_register(tag.address + offset, word)
 
     def read_many(self, names=None) -> dict:
         if names is None:
