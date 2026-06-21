@@ -42,3 +42,17 @@ python -m http.server --directory web 8099
 On GitHub Pages it is published at `/<repo>/hmi/` (the `pages` workflow runs `export_trace.py` and
 copies `web/hmi/`). `scene_model.py` stays the deterministic test oracle; structural + HP-HMI-compliance
 wiring is guarded by `tests/test_web_hmi.py`.
+
+## Live mode (V3)
+Beyond replaying traces, the HMI can connect to the **running twin** in real time. Start the live
+server and click **● Go live** (it connects to `ws://<host>:8765`):
+```bash
+python scripts/hmi_server.py          # ws://127.0.0.1:8765 — runs the soft-PLC + scene live
+python -m http.server --directory web 8099   # then open /hmi/ and click "Go live"
+```
+The server (`scripts/hmi_server.py`) runs the soft-PLC + `scene_model.py` in real time, auto-feeds
+parcels, and broadcasts a per-tick frame over a **hand-rolled WebSocket** (RFC 6455, stdlib only —
+same zero-dependency ethos as the Modbus server). In live mode the **Start / Stop / Reset / E-STOP /
+Inject jam** buttons send commands that drive the actual control logic, so the operator console is
+live. The static Pages deployment stays in replay mode (no server); live mode is for local/LAN use.
+`tests/test_hmi_server.py` covers the WebSocket handshake/framing and that commands drive the PLC.

@@ -58,6 +58,13 @@ def test_engine_loads_traces_and_is_interval_driven():
     assert "sv-parcels" in js, "engine must render parcels"
 
 
+def test_live_mode_present():
+    html = _read(HMI, "index.html")
+    assert 'id="go-live"' in html and 'id="b-jam"' in html, "live-mode controls missing"
+    js = _read(HMI, "hmi.js")
+    assert "WebSocket" in js and "liveFrame" in js and "sendCmd" in js, "live-mode client missing"
+
+
 def test_css_is_high_performance_hmi_compliant():
     css = _read(HMI, "hmi.css")
     # HP-HMI palette tokens present (colour reserved for data + alarms)

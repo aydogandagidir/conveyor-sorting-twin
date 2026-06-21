@@ -13,6 +13,7 @@
   var frames = [], dt = 0.05, dur = 0, layout = null;
   var simT = 0, playing = true, speed = 1, lastIdx = -1, lastTick = null, lastSt = null;
   var vis = new Map(), spark = [], alarms = [], alarmSeq = 0, level = 2;
+  var liveMode = false, ws = null, prevLive = null, liveTrend = [];
 
   function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
   function txt(x, y, s, fill, sz, anchor) { var t = el("text", { x: x, y: y, "font-size": sz || 11, fill: fill, "font-family": "system-ui,Segoe UI,Arial" }); if (anchor) t.setAttribute("text-anchor", anchor); t.textContent = s; return t; }
@@ -121,16 +122,22 @@
     if ($("bincA")) $("bincA").textContent = st.a; if ($("bincB")) $("bincB").textContent = st.b;
     binFill("binfA", st.a); binFill("binfB", st.b);
     $("ca").textContent = st.a; $("cb").textContent = st.b; $("st-wip").textContent = st.parcels.length;
-    var mins = Math.max(simT / 60, 1e-6), tput = Math.round((st.a + st.b) / mins);
+    var clk = liveMode ? (st.t || 0) : simT;
+    var mins = Math.max(clk / 60, 1e-6), tput = Math.round((st.a + st.b) / mins);
     $("tp").textContent = tput; ptr("tp-ptr", tput, 50); band("tp-band", 8, 36, 50);
-    var tot = Math.max(1, (frames.length ? frames[frames.length - 1].a + frames[frames.length - 1].b : 1));
+    var tot = Math.max(1, st.a + st.b, frames.length ? frames[frames.length - 1].a + frames[frames.length - 1].b : 1);
     ptr("a-ptr", st.a, tot); ptr("b-ptr", st.b, tot);
-    $("rt").textContent = fmt(simT);
-    $("seek").value = Math.round(simT / dur * 1000) || 0;
-    $("time").textContent = simT.toFixed(1) + " / " + dur.toFixed(1) + " s";
-    drawTrend(); drawSpark();
+    $("rt").textContent = fmt(clk);
+    if (liveMode) {
+      $("time").textContent = "LIVE · " + clk.toFixed(1) + " s";
+      drawLiveTrend(); drawSpark();
+    } else {
+      $("seek").value = Math.round(simT / dur * 1000) || 0;
+      $("time").textContent = simT.toFixed(1) + " / " + dur.toFixed(1) + " s";
+      drawTrend(); drawSpark();
+      logTransitions(st.i);
+    }
     if (level === 1) updateLine(st); else if (level === 3) updateIO(st);
-    logTransitions(st.i);
   }
   function drawJamIndicator(on) {
     var g = $("sv-alarm"); if (!g) return;
@@ -248,6 +255,7 @@
   function clearVis() { vis.forEach(function (v) { v.el.remove(); }); vis.clear(); }
   function reset() { simT = 0; lastIdx = -1; spark = []; alarms = []; playing = true; $("play").textContent = "⏸ Pause"; clearVis(); renderAlarms(); }
   function tick() {
+    if (liveMode) return;   // live frames drive render via the WebSocket
     var now = performance.now(); if (lastTick == null) lastTick = now; var rd = Math.min((now - lastTick) / 1000, 0.5); lastTick = now;
     if (playing && frames.length) {
       simT += rd * speed; var st = frameAt(simT), mins = Math.max(simT / 60, 1e-6);
@@ -322,6 +330,50 @@
     $("view-io").innerHTML = h + "</tbody></table>";
   }
 
+  /* ---- live mode: stream the real twin over WebSocket (scripts/hmi_server.py) ---- */
+  function drawLiveTrend() {
+    var c = $("trend"), x = c.getContext("2d"), W = c.width, H = c.height, n = liveTrend.length;
+    x.clearRect(0, 0, W, H); if (n < 2) return;
+    var maxN = Math.max(1, liveTrend[n - 1].a + liveTrend[n - 1].b);
+    var xs = function (i) { return i / (n - 1) * (W - 6) + 3; }, ys = function (v) { return H - 6 - v / maxN * (H - 14); };
+    x.strokeStyle = rgba(cssv("--line"), .5); x.lineWidth = 1;
+    for (var gy = 0; gy <= 2; gy++) { var yy = 6 + gy * (H - 12) / 2; x.beginPath(); x.moveTo(3, yy); x.lineTo(W - 3, yy); x.stroke(); }
+    [["b", cssv("--ink-2")], ["a", cssv("--data")]].forEach(function (s) {
+      x.beginPath(); for (var i = 0; i < n; i++) { var px = xs(i), py = ys(liveTrend[i][s[0]]); i ? x.lineTo(px, py) : x.moveTo(px, py); } x.strokeStyle = s[1]; x.lineWidth = 1.6; x.stroke();
+    });
+  }
+  function liveFrame(f) {
+    if (prevLive) {
+      if (f.a > prevLive.a) addAlarm(4, "CHUTE-A", "Parcel sorted to Chute A", true, f.t);
+      if (f.b > prevLive.b) addAlarm(4, "CHUTE-B", "Parcel sorted to Chute B", true, f.t);
+      if (f.jam && !prevLive.jam) addAlarm(1, "DV-001", "Conveyor jam — sorter blocked", false, f.t);
+      if (!f.jam && prevLive.jam) returnAlarm("DV-001");
+    }
+    prevLive = f;
+    liveTrend.push({ a: f.a, b: f.b }); if (liveTrend.length > 300) liveTrend.shift();
+    var mins = Math.max(f.t / 60, 1e-6); if (spark.length < 400) spark.push((f.a + f.b) / mins);
+    render(f, 0.1);
+  }
+  function setMode(label, on) {
+    $("mode").textContent = label;
+    $("go-live").textContent = on ? "■ Stop live" : "● Go live";
+    ["scenario", "play", "speed", "seek"].forEach(function (id) { $(id).disabled = on; });
+    $("b-jam").style.display = on ? "" : "none";
+  }
+  function sendCmd(cmd) { if (ws && liveMode) try { ws.send(JSON.stringify({ cmd: cmd })); } catch (e) {} }
+  function liveErr(url) { var h = $("hint"); h.textContent = "No live server at " + url + " — run  python scripts/hmi_server.py  on that host."; h.style.display = "block"; if (ws) { try { ws.close(); } catch (e) {} } ws = null; liveMode = false; setMode("REPLAY", false); }
+  function stopLive() { liveMode = false; if (ws) { try { ws.close(); } catch (e) {} ws = null; } setMode("REPLAY", false); spark = []; clearVis(); if (layout) reset(); }
+  function goLive() {
+    if (liveMode || ws) { stopLive(); return; }
+    var url = "ws://" + (location.hostname || "localhost") + ":8765";
+    $("hint").style.display = "none";
+    try { ws = new WebSocket(url); } catch (e) { liveErr(url); return; }
+    ws.onopen = function () { liveMode = true; prevLive = null; liveTrend = []; spark = []; alarms = []; renderAlarms(); clearVis(); setMode("LIVE", true); };
+    ws.onmessage = function (ev) { try { liveFrame(JSON.parse(ev.data)); } catch (e) {} };
+    ws.onclose = function () { ws = null; if (liveMode) { liveMode = false; setMode("REPLAY", false); } };
+    ws.onerror = function () { liveErr(url); };
+  }
+
   function loadTrace(name) {
     return fetch("traces/" + name + ".json").then(function (r) { return r.json(); }).then(function (t) {
       frames = t.frames; dt = t.dt; layout = t.layout; dur = (frames.length - 1) * dt;
@@ -339,10 +391,12 @@
   $("play").onclick = function () { playing = !playing; $("play").textContent = playing ? "⏸ Pause" : "▶ Play"; };
   $("speed").onchange = function (e) { speed = +e.target.value; };
   $("seek").oninput = function (e) { simT = (+e.target.value) / 1000 * dur; lastIdx = -1; spark = []; alarms = []; clearVis(); renderAlarms(); };
-  $("b-start").onclick = function () { playing = true; $("play").textContent = "⏸ Pause"; };
-  $("b-stop").onclick = function () { playing = false; $("play").textContent = "▶ Play"; };
-  $("b-reset").onclick = function () { reset(); };
-  $("b-est").onclick = function () { playing = false; $("play").textContent = "▶ Play"; addAlarm(2, "CELL-01", "E-stop actuated (operator)"); };
+  $("b-start").onclick = function () { if (liveMode) return sendCmd("start"); playing = true; $("play").textContent = "⏸ Pause"; };
+  $("b-stop").onclick = function () { if (liveMode) return sendCmd("stop"); playing = false; $("play").textContent = "▶ Play"; };
+  $("b-reset").onclick = function () { if (liveMode) return sendCmd("reset"); reset(); };
+  $("b-est").onclick = function () { if (liveMode) return sendCmd("estop"); playing = false; $("play").textContent = "▶ Play"; addAlarm(2, "CELL-01", "E-stop actuated (operator)"); };
+  $("b-jam").onclick = function () { sendCmd("jam"); };
+  $("go-live").onclick = goLive;
   $("b-ack").onclick = function () { alarms.forEach(function (a) { if (a.state === "UNACK") a.state = "ACK"; }); renderAlarms(); };
   $("fp-x").onclick = closeFp;
   $("fp-ov").onclick = function (e) { if (e.target === $("fp-ov")) closeFp(); };

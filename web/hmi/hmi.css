@@ -141,6 +141,7 @@ select,.btn.play{background:var(--raised);color:var(--ink);border:1px solid var(
   font-size:12px;font-family:inherit;cursor:pointer}
 input[type=range]{flex:1;min-width:130px;accent-color:var(--data)}
 .tspan{font-family:var(--mono);color:var(--ink-2);font-size:12.5px;min-width:96px;text-align:right}
+.ctrl :disabled{opacity:.45;cursor:not-allowed}
 .foot{color:var(--ink-3);font-size:11px;text-align:center;margin-top:12px}
 .hint{display:none;color:var(--p2);font-weight:600;margin-top:10px}
 
