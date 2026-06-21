@@ -113,7 +113,7 @@ class ScenarioRunner:
         with open(path, encoding="utf-8") as f:
             return self.run(json.load(f))
 
-    def run(self, scenario):
+    def run(self, scenario, record_trace=False):
         validate_scenario(scenario)  # fail fast on malformed scenarios
         dt = float(scenario.get("dt", 0.05))
         duration = float(scenario["duration"])
@@ -141,6 +141,7 @@ class ScenarioRunner:
         }
         prev_motor = None
         prev_jam = False
+        frames = []
 
         for k in range(nsteps + 1):
             t = k * dt
@@ -183,6 +184,17 @@ class ScenarioRunner:
             if divert:
                 result["divert_on_ticks"] += 1
 
+            if record_trace:
+                frames.append({
+                    "t": round(t, 3),
+                    "motor": bool(motor), "diverter": bool(divert), "jam": bool(jam),
+                    "a": int(ca), "b": int(cb),
+                    "pe1": self.scene.sensor_blocked(self.scene.pe1_x),
+                    "pe2": self.scene.sensor_blocked(self.scene.pe2_x),
+                    "parcels": [{"id": p.id, "x": round(p.pos, 2), "dest": p.destination,
+                                 "stuck": p.stuck} for p in self.scene.parcels],
+                })
+
             for sev in self.scene.step(dt, motor, divert):
                 if sev[0] != "scan":
                     continue
@@ -199,6 +211,16 @@ class ScenarioRunner:
         result["scene_chute_a"] = list(self.scene.chute_a)
         result["scene_chute_b"] = list(self.scene.chute_b)
         result["telemetry_events"] = self.tel.count()
+        if record_trace:
+            result["trace"] = {
+                "scenario": scenario.get("name"),
+                "cell": scenario.get("cell", "sorting_cell_mvp"),
+                "dt": dt,
+                "layout": {"pe1": self.scene.pe1_x, "pe2": self.scene.pe2_x,
+                           "divert": self.scene.divert_x, "end": self.scene.end_x,
+                           "parcel_len": self.scene.plen, "speed": self.scene.speed},
+                "frames": frames,
+            }
         return result
 
     def _apply_event(self, ev, inputs, result):
