@@ -11,7 +11,7 @@
   var cx = function (cm) { return OX + cm * SCALE; };
   var A_BIN = { x: 690, y: 118 }, B_BIN = { x: 798, y: 338 };
   var frames = [], dt = 0.05, dur = 0, layout = null;
-  var simT = 0, playing = true, speed = 1, lastIdx = -1, lastTick = null;
+  var simT = 0, playing = true, speed = 1, lastIdx = -1, lastTick = null, lastSt = null;
   var vis = new Map(), spark = [], alarms = [], alarmSeq = 0, jamActive = false, estopLatched = false;
 
   function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
@@ -55,11 +55,15 @@
     bin("A", A_BIN); bin("B", B_BIN);
     svg.appendChild(el("g", { id: "sv-alarm" }));     // jam alarm indicator (drawn on demand)
     svg.appendChild(el("g", { id: "sv-parcels" }));
+    $("sv-motor").setAttribute("data-fp", ""); $("sv-motor").onclick = motorFp;
+    $("sv-divarm").setAttribute("data-fp", ""); $("sv-divarm").onclick = diverterFp;
   }
   function bin(id, p) {
     var L = cssv("--line"), L2 = cssv("--line-2"), INK2 = cssv("--ink-2"), DATA = cssv("--data"), BG = cssv("--bg");
     var W = 120, H = 54;
-    svg.appendChild(el("path", { d: "M" + p.x + " " + p.y + " v" + H + " h" + W + " v" + (-H), fill: BG, stroke: L, "stroke-width": 1.3 }));
+    var box = el("path", { d: "M" + p.x + " " + p.y + " v" + H + " h" + W + " v" + (-H), fill: BG, stroke: L, "stroke-width": 1.3 });
+    box.setAttribute("data-fp", ""); box.onclick = function () { chuteFp(id); };
+    svg.appendChild(box);
     svg.appendChild(txt(p.x + 4, p.y - 8, "CHUTE " + id, INK2, 11));
     var c = txt(p.x + W - 4, p.y - 8, "0", DATA, 15, "end"); c.setAttribute("id", "binc" + id); c.setAttribute("font-weight", "600"); svg.appendChild(c);
     svg.appendChild(txt(p.x + 8, p.y + H - 24, "LEVEL", INK2, 8.5));
@@ -85,6 +89,7 @@
   var set = function (id, k, v) { var e = $(id); if (e) e.setAttribute(k, v); };
 
   function render(st, rd) {
+    lastSt = st;
     var ON = cssv("--on"), OFF = cssv("--off"), BG = cssv("--bg"), INK = cssv("--ink"), P1 = cssv("--p1");
     // parcels (outlined, A/B label; brightness shows on belt). Stuck → alarm outline.
     var g = $("sv-parcels"), seen = new Set();
@@ -175,6 +180,7 @@
         '<span class="ic" style="background:var(' + p.c + ');clip-path:' + p.clip + '"></span>' + p.lab + '</td>' +
         '<td class="ts num">' + fmt(a.t) + '</td><td class="tag">' + a.tag + '</td><td>' + a.desc + '</td>' +
         '<td><span class="state ' + a.state + '">' + a.state + '</span></td>';
+      tr.onclick = function () { alarmFp(a); };
       tb.appendChild(tr);
     });
     // docked banner: highest-priority UNACK, else latest
@@ -193,6 +199,50 @@
     }
     lastIdx = idx;
   }
+
+  /* ---- faceplates (equipment detail + ISA-18.2 alarm rationalisation) ---- */
+  var RAT = {
+    "DV-001": { cause: "Parcel stuck at the diverter — PE-002 blocked beyond the 1 s jam timer.", consequence: "Sorter halted and the conveyor stopped; parcels accumulate upstream.", action: "Clear the obstruction at DV-001, then press Reset to restart the cell." },
+    "CELL-01": { cause: "Operator actuated the cell E-stop.", consequence: "Cell de-energised; all motion stopped (fail-safe).", action: "Resolve the hazard, release the E-stop, then press Reset." }
+  };
+  function openFp(title, tag, rows, actions) {
+    $("fp-title").textContent = title; $("fp-tag").textContent = tag || "";
+    var bd = $("fp-body"); bd.innerHTML = "";
+    rows.forEach(function (r) {
+      var d = document.createElement("div"); d.className = "fp-row" + (r.col ? " col" : "");
+      d.innerHTML = '<span class="k">' + r.k + '</span><span class="vv"' + (r.color ? ' style="color:' + r.color + '"' : "") + ">" + r.v + "</span>";
+      bd.appendChild(d);
+    });
+    var ac = $("fp-ac"); ac.innerHTML = "";
+    (actions || []).forEach(function (a) { var b = document.createElement("button"); b.className = "btn"; b.textContent = a.label; b.onclick = a.onclick; ac.appendChild(b); });
+    $("fp-ov").classList.add("show");
+  }
+  function closeFp() { $("fp-ov").classList.remove("show"); }
+  function alarmFp(a) {
+    var r = RAT[a.tag] || {};
+    openFp(a.pri <= 3 ? "Alarm — priority " + a.pri : "Event", a.tag, [
+      { k: "State", v: a.state, color: a.state === "UNACK" ? "var(--p1)" : "" },
+      { k: "Time", v: fmt(a.t) + " s" },
+      { k: "Description", v: a.desc, col: true },
+      { k: "Probable cause", v: r.cause || "—", col: true },
+      { k: "Consequence", v: r.consequence || "—", col: true },
+      { k: "Corrective action", v: r.action || "—", col: true }
+    ], a.state === "UNACK"
+      ? [{ label: "Acknowledge", onclick: function () { a.state = "ACK"; renderAlarms(); closeFp(); } }, { label: "Close", onclick: closeFp }]
+      : [{ label: "Close", onclick: closeFp }]);
+  }
+  function motorFp() { var s = lastSt || {}; openFp("Drive motor", "M-001", [
+    { k: "State", v: s.motor ? "RUN" : "STOP" }, { k: "Mode", v: "Auto" },
+    { k: "Run time", v: fmt(simT) }, { k: "Interlock", v: s.jam ? "JAM — stopped" : "OK", color: s.jam ? "var(--p1)" : "" }
+  ], [{ label: "Close", onclick: closeFp }]); }
+  function diverterFp() { var s = lastSt || {}; openFp("Diverter gate", "DV-001", [
+    { k: "Position", v: s.diverter ? "DIVERT → Chute A" : "PASS → Chute B" },
+    { k: "Mode", v: "Auto (barcode-routed)" }, { k: "Status", v: s.jam ? "JAM" : "OK", color: s.jam ? "var(--p1)" : "" }
+  ], [{ label: "Close", onclick: closeFp }]); }
+  function chuteFp(id) { var s = lastSt || {}, n = (id === "A" ? s.a : s.b) || 0; openFp("Sort chute " + id, "CHUTE-" + id, [
+    { k: "Sorted count", v: n, color: "var(--data)" }, { k: "Capacity", v: "12 (demo)" },
+    { k: "Level", v: Math.round(Math.min(n / 12, 1) * 100) + " %" }
+  ], [{ label: "Close", onclick: closeFp }]); }
 
   function clearVis() { vis.forEach(function (v) { v.el.remove(); }); vis.clear(); }
   function reset() { simT = 0; lastIdx = -1; spark = []; alarms = []; playing = true; $("play").textContent = "⏸ Pause"; clearVis(); renderAlarms(); }
@@ -230,5 +280,8 @@
   $("b-reset").onclick = function () { reset(); };
   $("b-est").onclick = function () { playing = false; $("play").textContent = "▶ Play"; addAlarm(2, "CELL-01", "E-stop actuated (operator)"); };
   $("b-ack").onclick = function () { alarms.forEach(function (a) { if (a.state === "UNACK") a.state = "ACK"; }); renderAlarms(); };
+  $("fp-x").onclick = closeFp;
+  $("fp-ov").onclick = function (e) { if (e.target === $("fp-ov")) closeFp(); };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeFp(); });
   init();
 })();

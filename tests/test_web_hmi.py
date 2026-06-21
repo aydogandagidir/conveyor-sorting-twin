@@ -34,6 +34,14 @@ def test_index_links_assets_and_exposes_components():
         assert needed in html, f"index.html missing {needed}"
 
 
+def test_faceplate_and_alarm_rationalisation_present():
+    html = _read(HMI, "index.html")
+    assert 'id="fp-ov"' in html and 'id="fp-body"' in html, "faceplate overlay missing"
+    js = _read(HMI, "hmi.js")
+    # ISA-18.2 rationalisation fields (cause / consequence / corrective action) + the opener
+    assert "openFp" in js and "Corrective action" in js, "alarm rationalisation faceplate missing"
+
+
 def test_engine_loads_traces_and_is_interval_driven():
     js = _read(HMI, "hmi.js")
     assert "traces/index.json" in js and 'fetch("traces/' in js, "engine must load traces"
