@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenLogiTwin — Sorting Cell HMI</title>
+<meta name="description" content="Live web HMI for the OpenLogiTwin conveyor sorting cell — replays deterministic simulation traces.">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#30363d; --fg:#e6edf3;
+    --muted:#9198a1; --accent:#38bdf8; --a:#3b82f6; --b:#f0883e; --ok:#3fb950;
+    --warn:#d29922; --bad:#f85149; --belt:#222b38;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+  header{display:flex;align-items:center;justify-content:space-between;
+    padding:18px 0;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand b{font-size:18px;letter-spacing:-.01em}
+  .brand small{color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--ok)}
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}
+  select,button{background:var(--panel2);color:var(--fg);border:1px solid var(--border);
+    border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer}
+  button:hover,select:hover{border-color:#4b5563}
+  button.primary{background:var(--accent);color:#03121c;border-color:var(--accent);font-weight:600}
+  input[type=range]{accent-color:var(--accent);flex:1;min-width:120px}
+  .time{font-family:"SFMono-Regular",Consolas,monospace;color:var(--muted);font-size:13px;min-width:88px;text-align:right}
+  .stage{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .card .k{color:var(--muted);font-size:12px}
+  .card .v{font-size:26px;font-weight:600;margin-top:2px}
+  .lamps{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:8px 0 16px}
+  .lamp{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px}
+  .lamp i{width:11px;height:11px;border-radius:50%;background:var(--border);transition:background .15s}
+  .log{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    height:132px;overflow:auto;padding:8px 12px;font-family:Consolas,monospace;font-size:12.5px}
+  .log div{color:var(--muted);padding:1px 0}
+  .log .t{color:#566070}
+  footer{color:var(--muted);font-size:12px;padding:18px 0 40px;text-align:center}
+  .hint{display:none;color:var(--warn);font-size:13px;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <b>OpenLogiTwin</b><small>· Sorting Cell HMI</small>
+    </div>
+    <a href="https://github.com/aydogandagidir/conveyor-sorting-twin">GitHub ↗</a>
+  </header>
+
+  <div class="toolbar">
+    <select id="scenario" aria-label="Scenario"></select>
+    <button id="play" class="primary">⏸ Pause</button>
+    <select id="speed" aria-label="Speed">
+      <option value="0.5">0.5×</option><option value="1" selected>1×</option>
+      <option value="2">2×</option><option value="4">4×</option>
+    </select>
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Timeline">
+    <span class="time" id="time">0.0 / 0.0 s</span>
+  </div>
+  <div class="hint" id="hint">Traces not found — serve this folder over HTTP (e.g. <code>python -m http.server</code> from the repo root, then open <code>/web/hmi/</code>), or view it on GitHub Pages.</div>
+
+  <div class="stage">
+    <svg id="cell" viewBox="0 0 960 360" role="img" aria-label="Conveyor sorting cell visualization"></svg>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="k">Chute A</div><div class="v" id="ca">0</div></div>
+    <div class="card"><div class="k">Chute B</div><div class="v" id="cb">0</div></div>
+    <div class="card"><div class="k">Throughput</div><div class="v" id="tp">0<span style="font-size:13px;color:var(--muted)"> /min</span></div></div>
+    <div class="card"><div class="k">Sorted total</div><div class="v" id="tot">0</div></div>
+  </div>
+
+  <div class="lamps">
+    <span class="lamp"><i id="l-motor"></i>Motor</span>
+    <span class="lamp"><i id="l-div"></i>Diverter</span>
+    <span class="lamp"><i id="l-jam"></i>Jam</span>
+    <span class="lamp"><i id="l-pe1"></i>PE_001</span>
+    <span class="lamp"><i id="l-pe2"></i>PE_002</span>
+  </div>
+
+  <div class="log" id="log"></div>
+  <footer>Replaying a deterministic <code>scene_model.py</code> trace · the same plant the test suite verifies.</footer>
+</div>
+
+<script>
+(function(){
+  const NS="http://www.w3.org/2000/svg", svg=document.getElementById("cell");
+  const OX=64, SCALE=5.4, BELT_Y=214, PLEN=10;            // cm -> px
+  const cx = cm => OX + cm*SCALE;
+  const A_BIN={x:648,y:78}, B_BIN={x:812,y:208};          // exit targets (px)
+  let trace=null, frames=[], dt=0.05, dur=0, layout=null;
+  let simT=0, playing=true, speed=1, lastTs=null, lastIdx=-1;
+  const vis=new Map();                                     // id -> {el, exiting, et}
+  const $ = id => document.getElementById(id);
+
+  function el(tag, attrs){const e=document.createElementNS(NS,tag);
+    for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  function text(x,y,s,fill,size){const t=el("text",{x,y,"font-size":size||11,fill});t.textContent=s;return t;}
+
+  function drawStatic(){
+    svg.innerHTML="";
+    svg.appendChild(el("rect",{x:cx(0),y:BELT_Y,width:cx(layout.end)-cx(0),height:30,rx:5,
+      fill:"var(--belt)",stroke:"var(--border)","stroke-width":1}));
+    svg.appendChild(text(cx(0),BELT_Y-10,"infeed","var(--muted)"));
+    // diverter
+    svg.appendChild(el("rect",{id:"sv-div",x:cx(layout.divert)-3,y:BELT_Y-22,width:7,height:30,rx:2,
+      fill:"var(--border)"}));
+    // photo-eyes
+    for(const [k,xcm,lbl] of [["pe1",layout.pe1,"pe_001"],["pe2",layout.pe2,"pe_002"]]){
+      svg.appendChild(el("circle",{id:"sv-"+k,cx:cx(xcm),cy:BELT_Y-6,r:5,fill:"var(--border)"}));
+      svg.appendChild(text(cx(xcm)-16,BELT_Y-22,lbl,"var(--muted)"));
+    }
+    // chute A spur + bin
+    const sp=el("path",{d:`M ${cx(layout.divert)} ${BELT_Y} L ${A_BIN.x+30} ${A_BIN.y+44}`,
+      fill:"none",stroke:"var(--border)","stroke-width":2,"stroke-dasharray":"4 4"});
+    svg.appendChild(sp);
+    svg.appendChild(el("rect",{x:A_BIN.x-12,y:A_BIN.y-12,width:120,height:50,rx:7,
+      fill:"none",stroke:"var(--a)","stroke-width":1.4}));
+    svg.appendChild(text(A_BIN.x,A_BIN.y+6,"Chute A","var(--a)",13));
+    // chute B bin
+    svg.appendChild(el("rect",{x:B_BIN.x-12,y:B_BIN.y-12,width:120,height:50,rx:7,
+      fill:"none",stroke:"var(--b)","stroke-width":1.4}));
+    svg.appendChild(text(B_BIN.x,B_BIN.y+6,"Chute B","var(--b)",13));
+    const g=el("g",{id:"sv-parcels"}); svg.appendChild(g);
+  }
+
+  function frameAt(t){
+    let i=Math.min(Math.floor(t/dt),frames.length-1); if(i<0)i=0;
+    const f=frames[i], g=frames[Math.min(i+1,frames.length-1)];
+    const frac=Math.min(Math.max((t-i*dt)/dt,0),1);
+    const gm=new Map(g.parcels.map(p=>[p.id,p]));
+    const parcels=f.parcels.map(p=>{const q=gm.get(p.id);
+      return {id:p.id,x:q?p.x+(q.x-p.x)*frac:p.x,dest:p.dest,stuck:p.stuck};});
+    return {i,parcels,motor:f.motor,diverter:f.diverter,jam:f.jam,a:f.a,b:f.b,pe1:f.pe1,pe2:f.pe2};
+  }
+
+  function lamp(id,on,col){$(id).style.background=on?(col||"var(--ok)"):"var(--border)";}
+
+  function render(st,realDt){
+    const g=$("sv-parcels");
+    const seen=new Set();
+    for(const p of st.parcels){
+      let v=vis.get(p.id);
+      if(!v){const r=el("rect",{width:24,height:18,rx:3});g.appendChild(r);v={el:r};vis.set(p.id,v);}
+      v.exiting=false; v.dest=p.dest;
+      v.el.setAttribute("x",cx(p.x)-12); v.el.setAttribute("y",BELT_Y-3);
+      v.el.setAttribute("fill",p.dest===1?"var(--a)":"var(--b)");
+      v.el.setAttribute("opacity",p.stuck?0.55:1);
+      v.el.setAttribute("stroke",p.stuck?"var(--bad)":"none");
+      v.el.setAttribute("stroke-width",p.stuck?2:0);
+      seen.add(p.id);
+    }
+    for(const [id,v] of [...vis]){
+      if(seen.has(id))continue;
+      if(!v.exiting){v.exiting=true; v.et=0;
+        const r=v.el; v.sx=+r.getAttribute("x"); v.sy=+r.getAttribute("y");
+        const tgt=v.dest===1?A_BIN:B_BIN; v.tx=tgt.x; v.ty=tgt.y;}
+      v.et+=realDt; const k=Math.min(v.et/0.45,1);
+      v.el.setAttribute("x",v.sx+(v.tx-v.sx)*k);
+      v.el.setAttribute("y",v.sy+(v.ty-v.sy)*k);
+      v.el.setAttribute("opacity",1-k*0.9);
+      if(k>=1){v.el.remove(); vis.delete(id);}
+    }
+    $("sv-div").setAttribute("fill",st.diverter?"var(--warn)":"var(--border)");
+    $("sv-pe1").setAttribute("fill",st.pe1?"var(--accent)":"var(--border)");
+    $("sv-pe2").setAttribute("fill",st.pe2?"var(--accent)":"var(--border)");
+    lamp("l-motor",st.motor); lamp("l-div",st.diverter,"var(--warn)");
+    lamp("l-jam",st.jam,"var(--bad)"); lamp("l-pe1",st.pe1,"var(--accent)"); lamp("l-pe2",st.pe2,"var(--accent)");
+    $("ca").textContent=st.a; $("cb").textContent=st.b; $("tot").textContent=st.a+st.b;
+    const mins=Math.max(simT/60,1e-6);
+    $("tp").innerHTML=Math.round((st.a+st.b)/mins)+'<span style="font-size:13px;color:var(--muted)"> /min</span>';
+    $("seek").value=Math.round(simT/dur*1000)||0;
+    $("time").textContent=simT.toFixed(1)+" / "+dur.toFixed(1)+" s";
+    logTransitions(st.i);
+  }
+
+  function logLine(t,msg,col){const d=document.createElement("div");
+    d.innerHTML='<span class="t">'+t.toFixed(2)+'s</span> '+msg;
+    if(col)d.style.color=col; const L=$("log"); L.appendChild(d); L.scrollTop=L.scrollHeight;}
+  function logTransitions(idx){
+    if(idx<=lastIdx){lastIdx=idx;return;}
+    for(let j=Math.max(lastIdx,0)+1;j<=idx;j++){
+      const a=frames[j-1], b=frames[j]; if(!a||!b)continue; const tt=j*dt;
+      if(b.a>a.a)logLine(tt,"Sorted → Chute A","var(--a)");
+      if(b.b>a.b)logLine(tt,"Sorted → Chute B","var(--b)");
+      if(b.jam&&!a.jam)logLine(tt,"⚠ JAM detected — line stopped","var(--bad)");
+      if(!b.jam&&a.jam)logLine(tt,"Jam cleared / reset","var(--ok)");
+    }
+    lastIdx=idx;
+  }
+
+  function clearVis(){for(const[,v]of vis)v.el.remove(); vis.clear();}
+  function reset(){simT=0; lastIdx=-1; playing=true; $("play").textContent="⏸ Pause";
+    $("log").innerHTML=""; clearVis();}
+
+  let lastTick=null;
+  function tick(){
+    const now=performance.now(); if(lastTick==null)lastTick=now;
+    const rd=Math.min((now-lastTick)/1000,0.5); lastTick=now;   // wall-clock dt; works hidden too
+    if(playing&&frames.length){
+      simT+=rd*speed;
+      if(simT>=dur){simT=0; lastIdx=-1; $("log").innerHTML=""; clearVis();}   // seamless loop
+    }
+    if(frames.length)render(frameAt(simT),rd);
+  }
+  setInterval(tick,33);   // setInterval (not rAF) so it keeps running in background/kiosk tabs
+
+  async function loadTrace(name){
+    const r=await fetch("traces/"+name+".json"); trace=await r.json();
+    frames=trace.frames; dt=trace.dt; layout=trace.layout;
+    dur=(frames.length-1)*dt; drawStatic(); reset();
+  }
+  async function init(){
+    try{
+      const idx=await (await fetch("traces/index.json")).json();
+      const sel=$("scenario");
+      idx.traces.forEach(n=>{const o=document.createElement("option");o.value=n;
+        o.textContent=n.replace(/_/g," ");sel.appendChild(o);});
+      sel.onchange=()=>loadTrace(sel.value);
+      await loadTrace(idx.traces[0]);
+    }catch(e){$("hint").style.display="block";}
+  }
+  $("play").onclick=()=>{playing=!playing;$("play").textContent=playing?"⏸ Pause":"▶ Play";};
+  $("speed").onchange=e=>speed=+e.target.value;
+  $("seek").oninput=e=>{simT=(+e.target.value)/1000*dur; lastIdx=-1; $("log").innerHTML="";
+    for(const[,v]of vis)v.el.remove(); vis.clear();};
+  init();
+})();
+</script>
+</body>
+</html>
