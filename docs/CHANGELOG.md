@@ -20,10 +20,35 @@ formal release tags). Dates are UTC.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-06-20
+
+External-runtime release: the twin is verified against **real FUXA and OpenPLC** (in Docker) and a
+**Godot 3D scene**, with every finding folded back into the repo. Track A closes with Modbus
+robustness.
+
 ### Added
-- **Modbus robustness** (A8, ADR-0008): `ModbusTCPClient` auto-reconnects once on a dropped socket
-  and retries; new `uint32` / `float32` multi-word register types (big-endian codec in
-  `modbus_tcp.py` + word-aware `TagGateway`). `tests/test_modbus_robustness.py`.
+- **OpenPLC behavioural equivalence** (B2): `plc/examples/03_sorting_cell_commissioning.st` puts
+  inputs on master-writable coils/registers so the gateway can drive a real OpenPLC;
+  `tests/test_openplc_behavioral.py` asserts it sorts identically to the soft-PLC.
+- **Godot 3D scene** (B3): `simulation/godot-project/cell.tscn` + `cell.gd` author the cell; verified
+  on Godot 4.2 headless (imports/runs, bridge connects, drives real sorts over Modbus).
+  `tests/test_godot_project.py` drift-guards the bridge addresses.
+- **FUXA mimic screen** (B1): `scripts/generate_fuxa_view.py` builds an SVG mimic and injects a
+  bound `hmi.views[0]` (5 live readouts) into the FUXA project. `tests/test_fuxa_view.py`.
+- **Modbus robustness** (A8, ADR-0008): `ModbusTCPClient` auto-reconnects once on a dropped socket;
+  new `uint32` / `float32` multi-word register types (big-endian codec + word-aware `TagGateway`).
+  `tests/test_modbus_robustness.py`.
+
+### Fixed
+- **OpenPLC ST compile**: `02_sorting_cell_mvp.st` now compiles on MatIEC — located and internal
+  variables are split into separate VAR blocks and a `CONFIGURATION`/`RESOURCE`/`TASK` is appended.
+- **Godot bridge load**: `cell_bridge.gd` preloads `modbus_client.gd` instead of the global
+  `class_name`, so the autoload resolves on a fresh headless import.
+
+### Verified (real runtimes, in Docker)
+- FUXA v1.3.3 connects to the twin over Modbus and reads live values; OpenPLC Runtime v3 runs the
+  compiled ST and matches the soft-PLC; Godot 4.2 headless drives real sorts. See
+  `hmi/fuxa/INTEGRATION.md`, `plc/examples/README.md`, `simulation/godot-project/README.md`.
 
 ## [0.4.0] — 2026-06-20
 
