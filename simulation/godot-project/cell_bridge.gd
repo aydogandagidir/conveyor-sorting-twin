@@ -27,11 +27,13 @@ const JAM := 2
 const COUNT_A := 0
 const COUNT_B := 1
 
-var _client: ModbusTcpClient
+# preload (not the global class_name) so the autoload resolves on a fresh headless import too
+const ModbusClientScript := preload("res://modbus_client.gd")
+var _client
 var connected := false
 
 func _ready() -> void:
-	_client = ModbusTcpClient.new()
+	_client = ModbusClientScript.new()
 	connected = _client.connect_to_plc(HOST, PORT)
 	if not connected:
 		push_warning("CellBridge: soft-PLC not reachable at %s:%d — run scripts/run_soft_plc.py" % [HOST, PORT])
@@ -52,8 +54,8 @@ func press(button_coil: int, down: bool) -> void:
 func read_outputs() -> Dictionary:
 	if not connected:
 		return {}
-	var di := _client.read_discrete_inputs(MOTOR, 3)
-	var regs := _client.read_input_registers(COUNT_A, 2)
+	var di = _client.read_discrete_inputs(MOTOR, 3)
+	var regs = _client.read_input_registers(COUNT_A, 2)
 	return {
 		"motor": di[0],
 		"diverter": di[1],

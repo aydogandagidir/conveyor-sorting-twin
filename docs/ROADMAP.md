@@ -43,5 +43,6 @@ Each landed via branch → PR → CI → merge.
   (`tests/test_openplc_behavioral.py`). Found+fixed a MatIEC compile bug (separate VAR blocks).
 - 🟡 **FUXA HMI** — data path verified: the generated project connects + polls the twin and live
   values propagate (`hmi/fuxa/INTEGRATION.md`). Mimic SVG screens: in progress (generated + injected).
-- ⬜ **Godot 3D scene** — author the `.tscn` per `docs/GODOT_SCENE.md`, validate with Godot headless,
-  wire the bridge to `cell_bridge.gd`. `scene_model.py` stays the deterministic test oracle.
+- ✅ **Godot 3D scene** — `cell.tscn` + `cell.gd` author the cell; verified on Godot 4.2 headless
+  (imports + runs with 0 errors, bridge connects, drives real sorts over Modbus). `scene_model.py`
+  stays the deterministic oracle; visual polish is editor work. Drift-guarded by `tests/test_godot_project.py`.

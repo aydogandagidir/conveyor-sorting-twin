@@ -35,6 +35,7 @@ SUITE = [
     "tests/test_performance.py",         # throughput/determinism baseline (A5)
     "tests/test_pages_landing.py",       # GitHub Pages landing page guard (A6)
     "tests/test_opcua_full_loop.py",     # end-to-end control loop over OPC UA (A7, skips w/o asyncua)
+    "tests/test_godot_project.py",       # Godot scene wiring + bridge<->registry drift guard (B3)
 ]
 
 
