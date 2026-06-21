@@ -30,3 +30,6 @@ deployment/.env
 # Godot (Phase 1)
 simulation/godot-project/.godot/
 simulation/godot-project/export/
+
+# Web HMI — generated traces (run scripts/export_trace.py, or built in CI for Pages)
+web/hmi/traces/

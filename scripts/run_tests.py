@@ -33,6 +33,7 @@ SUITE = [
     "tests/test_fuxa_view.py",           # FUXA mimic view: SVG + readout<->tag drift guard (B1)
     "tests/test_advanced_cell.py",       # multi-parcel FIFO cell promoted (ADR-0005)
     "tests/test_modbus_robustness.py",   # reconnect + uint32/float32 multi-word types (A8)
+    "tests/test_trace_export.py",        # deterministic per-tick trace for the web HMI (V0)
     "tests/test_barcode.py",             # per-parcel barcode simulator + EAN-13 (A4)
     "tests/test_performance.py",         # throughput/determinism baseline (A5)
     "tests/test_pages_landing.py",       # GitHub Pages landing page guard (A6)
