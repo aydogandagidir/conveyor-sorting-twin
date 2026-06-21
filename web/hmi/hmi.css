@@ -91,15 +91,20 @@ button{font-family:inherit}
 .spark{display:block;width:100%;height:30px;margin-top:5px}
 
 /* ---- trend + alarm summary ---- */
-.lower{display:grid;grid-template-columns:1fr 262px;gap:10px;margin-top:10px}
+.lower{display:grid;grid-template-columns:1.25fr 1fr;gap:10px;margin-top:10px}
 .card{background:var(--panel);border:1px solid var(--line)}
 .card .hd{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;
   border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2)}
 .card .hd .leg{display:flex;gap:12px;text-transform:none;letter-spacing:0}
 .card .hd .leg i{display:inline-block;width:10px;height:3px;vertical-align:2px;margin-right:5px}
 .trendwrap{padding:8px 11px}
-.alm .rows{max-height:150px;overflow:auto}
-table.alm-t{width:100%;border-collapse:collapse;font-size:12px}
+.alm .rows{max-height:150px;overflow-y:auto;overflow-x:hidden}
+table.alm-t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px}
+table.alm-t th:nth-child(1),table.alm-t td:nth-child(1){width:58px}
+table.alm-t th:nth-child(2),table.alm-t td:nth-child(2){width:52px}
+table.alm-t th:nth-child(3),table.alm-t td:nth-child(3){width:78px}
+table.alm-t th:nth-child(5),table.alm-t td:nth-child(5){width:64px}
+table.alm-t td:nth-child(4){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 table.alm-t th{position:sticky;top:0;background:var(--raised);text-align:left;font-weight:600;color:var(--ink-2);
   font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;padding:5px 8px;border-bottom:1px solid var(--line)}
 table.alm-t td{padding:5px 8px;border-bottom:1px solid var(--line);color:var(--ink)}
