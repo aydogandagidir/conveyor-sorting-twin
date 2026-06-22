@@ -1,9 +1,11 @@
 # OpenLogiTwin deployment profiles.
+#   demo      -> web HMI (replay + live twin) in one container — turnkey browser demo
 #   minimal   -> soft-PLC Modbus slave only (connectivity endpoint)
 #   standard  -> soft-PLC (telemetry is file-based; no extra service)
-#   full      -> soft-PLC + FUXA HMI
+#   full      -> soft-PLC + FUXA HMI + web HMI
 #   integration -> Node-RED (optional flow integration)
-# Usage: docker compose -f deployment/docker-compose.yml --profile full up
+# Usage: docker compose -f deployment/docker-compose.yml --profile demo up --build
+#        then open http://localhost:8099/hmi/  (click "Go live" to drive the real twin)
 # Not a hardened production deployment; see docs/DEPLOYMENT.md.
 
 services:
@@ -21,6 +23,21 @@ services:
     ports:
       - "${MODBUS_PORT:-15502}:15502"
     profiles: ["minimal", "standard", "full"]
+    restart: unless-stopped
+
+  # Turnkey browser demo: the one-command launcher serves the ISA-101 web HMI and runs the
+  # live twin (soft-PLC + scene) so the HMI's "Go live" button works out of the box.
+  web-hmi:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    image: openlogitwin/soft-plc:local
+    container_name: openlogitwin-hmi
+    command: ["python", "-m", "openlogitwin", "hmi", "--no-browser", "--host", "0.0.0.0"]
+    ports:
+      - "${HMI_PORT:-8099}:8099"      # web HMI  -> http://localhost:8099/hmi/
+      - "8765:8765"                   # live twin WebSocket — fixed: the HMI client connects to :8765
+    profiles: ["demo", "full"]
     restart: unless-stopped
 
   fuxa:
