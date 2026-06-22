@@ -7,7 +7,7 @@
 ## Context
 Phase 0 needs a Modbus TCP proof path and a PLC that responds to it. Two upstream
 options exist: depend on `pymodbus` for the transport, and depend on a running
-OpenPLC Runtime v4 for control. Both add setup/version risk to a PoC whose
+OpenPLC Runtime v3 for control. Both add setup/version risk to a PoC whose
 Definition of Done is "runs locally, verification script passes."
 
 Development rules also require: never hallucinate upstream APIs, no fake
@@ -20,7 +20,7 @@ criteria.
    01/02/03/04/05/06/0F/10, a shared `ModbusDataStore`, threaded server, and a
    synchronous client. Pure stdlib.
 2. **Provide a soft-PLC stub** (`plc/soft_plc.py`), explicitly named a stub for
-   OpenPLC Runtime v4, that serves the store as a Modbus slave and runs the
+   OpenPLC Runtime v3, that serves the store as a Modbus slave and runs the
    control scan.
 
 ## Rationale
@@ -38,12 +38,12 @@ The transport and the PLC are deliberately swappable:
 - **pymodbus**: the gateway only needs a client exposing
   `read_coils/read_discrete_inputs/read_holding_registers/read_input_registers/
   write_coil/write_register`. A `pymodbus`-backed adapter can drop in unchanged.
-- **OpenPLC Runtime v4**: point `ModbusTCPClient` at the OpenPLC endpoint and
+- **OpenPLC Runtime v3**: point `ModbusTCPClient` at the OpenPLC endpoint and
   delete the soft-PLC scan loop; the tag registry already uses OpenPLC-compatible
   master/slave semantics (ADR-0001).
 
 ### TODO — replacement criteria (Phase 1)
-- [ ] Stand up OpenPLC Runtime v4 with an ST/LD program implementing
+- [ ] Stand up OpenPLC Runtime v3 with an ST/LD program implementing
       `control_logic.scan()`.
 - [ ] Map tags to OpenPLC `%IX/%QX` addresses; reconcile with the registry.
 - [ ] Run `tests/verify_phase0.py` against OpenPLC (not the stub) and pass.

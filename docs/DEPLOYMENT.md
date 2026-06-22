@@ -62,6 +62,6 @@ Scripts write to `telemetry/exports/` by default; override with `--export-dir=DI
 (e.g. for CI or a container volume). Exports are gitignored.
 
 ## Known limitations
-- soft-PLC is a STUB for OpenPLC Runtime v4 (ADR-0002). For real PLC behaviour, point a
+- soft-PLC is a STUB for OpenPLC Runtime v3 (ADR-0002). For real PLC behaviour, point a
   Modbus master at an OpenPLC slave running the equivalent ST program (`plc/examples/`).
 - No TLS/auth on the Modbus endpoint (protocol standard). Network-segment it.

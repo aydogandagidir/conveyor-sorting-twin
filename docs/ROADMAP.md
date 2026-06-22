@@ -8,7 +8,7 @@ Status legend: ✅ done & verified · 🟡 in progress · ⬜ planned · 🔒 de
 | **0 — PoC Connectivity** | Real Modbus TCP loop, tag registry, soft-PLC stub, telemetry | ✅ 19/19 |
 | **1 — MVP Scene** | Deterministic sorting cell: routing, jam, counters, scenarios | ✅ 14/14 |
 | **1.5 — Hardening** | CI, pytest, control unit tests, E-stop NC fail-safe, Modbus exceptions, multi-parcel FIFO | ✅ |
-| **2 — HMI + Scenario Manager** | Scenario manager CLI, fault/control scenarios, protocol adapters, FUXA tag list + project | ✅ (FUXA SVG screens = external) |
+| **2 — HMI + Scenario Manager** | Scenario manager CLI, fault/control scenarios, protocol adapters, FUXA tag list + project | ✅ (FUXA SVG mimic generated + verified) |
 | **3 — Productization** | Demo + report, deployment, sample OpenPLC ST, training docs, docs polish | ✅ |
 
 ## Protocol roadmap (stack direction) — 3/3
@@ -23,7 +23,7 @@ Status legend: ✅ done & verified · 🟡 in progress · ⬜ planned · 🔒 de
 - **Track A / v0.4.0** — hardening & integration (see below): MQTT-from-CLI, scenario gallery,
   control robustness, barcode simulator, performance baseline, Pages landing, OPC UA full loop.
 - **GitHub Pages** — project landing + auto-published demo report: https://aydogandagidir.github.io/conveyor-sorting-twin/
-- 21 test files green (pytest 71 passed, 6 optional backend skips); CI matrix Python 3.9–3.13 × Ubuntu/Windows.
+- 28 test files green (pytest 99 passed, 7 optional backend skips); CI matrix Python 3.9/3.11/3.13 × Ubuntu/Windows.
 
 ## Track A — hardening & integration (done in v0.4.0)
 Each landed via branch → PR → CI → merge.
@@ -48,3 +48,21 @@ Each landed via branch → PR → CI → merge.
 - ✅ **Godot 3D scene** — `cell.tscn` + `cell.gd` author the cell; verified on Godot 4.2 headless
   (imports + runs with 0 errors, bridge connects, drives real sorts over Modbus). `scene_model.py`
   stays the deterministic oracle; visual polish is editor work. Drift-guarded by `tests/test_godot_project.py`.
+
+## Web HMI — browser operator console (done, v0.6.0)
+A zero-install, browser-based **ANSI/ISA-101 high-performance HMI** for the sorting cell. Built
+V0→V3, each via branch → PR → CI → merge; published on GitHub Pages (replay) at
+https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/
+- ✅ **Trace export (V0)** — `scripts/export_trace.py` writes deterministic `web/hmi/traces/*.json`
+  from the same `ScenarioRunner` the suite uses (`tests/test_trace_export.py`).
+- ✅ **Web HMI (V1–V2)** — `web/hmi/` replays traces; redesigned to the High-Performance HMI
+  doctrine (gray canvas, colour only for live data/alarms, status by brightness + word).
+- ✅ **ISA-18.2 alarms + faceplates + nav + theme** — docked banner + alarm summary, equipment
+  faceplates with rationalisation, L1/L2/L3 display hierarchy, light/dark theme. Drift-guarded by
+  `tests/test_web_hmi.py`.
+- ✅ **Live mode (V3)** — `scripts/hmi_server.py` streams the running twin over a hand-rolled stdlib
+  WebSocket (RFC 6455); the HMI's process buttons drive the real soft-PLC. `tests/test_hmi_server.py`.
+
+## Next — v0.7.0 productization (planned)
+- ⬜ One-command launcher + onboarding (single entry point that starts the live server and opens the
+  HMI), packaging/distribution, and a guided first-run. See `sprints/SPRINT_BACKLOG.md`.

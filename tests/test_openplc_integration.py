@@ -1,4 +1,4 @@
-"""OpenPLC Runtime v4 connectivity smoke test (skip-by-default).
+"""OpenPLC Runtime v3 connectivity smoke test (skip-by-default).
 
 When a live OpenPLC slave is reachable (set OPENPLC_HOST / OPENPLC_PORT), this verifies
 the gateway's Modbus client can connect and exchange basic reads — proving interop with a

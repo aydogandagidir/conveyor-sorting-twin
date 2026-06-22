@@ -1,7 +1,7 @@
 # Sample OpenPLC programs (Phase 3b)
 
 Structured Text (IEC 61131-3) ports of the soft-PLC control logic, for use with
-**OpenPLC Runtime v4**. They let you replace the Python soft-PLC stub (ADR-0002) with
+**OpenPLC Runtime v3**. They let you replace the Python soft-PLC stub (ADR-0002) with
 a real PLC while keeping the gateway, tag registry and scenarios unchanged.
 
 - `01_basic_conveyor_latch.st` — start/stop/E-stop motor latch (teaching baseline).

@@ -56,17 +56,27 @@ Deferred (per decision): Godot 3D wiring; real OpenPLC ST/LD migration.
 - [x] `scenarios/dense_sort_advanced.json` (8 parcels @0.4 s) + `tests/test_advanced_cell.py`
       (advanced 4/4 vs MVP single-register 2/6 on the same dense stream).
 
-## Best-effort (verify in external tool) / deferred
-- [~] FUXA project generator (`generate_fuxa_project.py`, structure-tested) + Godot 4.x
-      scaffold (project + GDScript client/bridge). Import into FUXA / open in Godot to verify.
-- 🔒 Live OpenPLC ST run, FUXA SVG screens, Godot `.tscn` scene — need the external runtime.
+## Done — Track B external runtimes (verified headlessly in Docker, 0.5.0)
+- [x] FUXA v1.3.3 — generated project connects + polls the twin; SVG mimic injected with bound
+      readouts (`generate_fuxa_view.py`, `tests/test_fuxa_view.py`).
+- [x] OpenPLC Runtime v3 — compiled ST driven over Modbus matches the soft-PLC
+      (`tests/test_openplc_behavioral.py`).
+- [x] Godot 4.2 headless — `cell.tscn` + `cell.gd` import/run and drive real sorts
+      (`tests/test_godot_project.py`).
+
+## Done — Web HMI (V0–V3, v0.6.0)
+- [x] Deterministic trace export (`scripts/export_trace.py`, `tests/test_trace_export.py`).
+- [x] ANSI/ISA-101 high-performance web HMI (`web/hmi/`): trace replay, ISA-18.2 alarms,
+      faceplates, L1/L2/L3 hierarchy, light/dark theme — drift-guarded by `tests/test_web_hmi.py`.
+- [x] Live mode: `scripts/hmi_server.py` streams the twin over a stdlib WebSocket; HMI buttons
+      drive the real soft-PLC (`tests/test_hmi_server.py`).
 
 ## Decisions (resolved by user)
 - **Hardening-first** sequencing (Phase 1.5 before Phase 2 features).
 - **Keep custom Modbus + add pymodbus adapter** (Phase 2, additive via factory).
 - **Keep soft-PLC stub through Phase 2**; real OpenPLC port deferred (after E-stop fail-safe).
 
-## Done — Phase 2 (HMI + Scenario Manager)  — (FUXA SVG screens = external runtime)
+## Done — Phase 2 (HMI + Scenario Manager)
 - [x] Scenario manager CLI (`scripts/scenario_manager.py`): list / validate / run / run-all
       with `expect` checks.
 - [x] Fault-injection + control scenarios (E-stop, Stop, rapid jam/reset) with expectations.
@@ -74,7 +84,7 @@ Deferred (per decision): Godot 3D wiring; real OpenPLC ST/LD migration.
 - [x] Protocol extensibility: `protocol_factory` + pymodbus adapter (vs 3.13) + **real OPC UA**
       adapter (asyncua, ADR-0006) + **MQTT telemetry** sink (ADR-0007).
 - [x] FUXA tag-list generator (registry-derived, drift-guarded) + project generator + `INTEGRATION.md`.
-- [ ] FUXA mimic project JSON (SVG screens) — authored & exported inside FUXA (external runtime).
+- [x] FUXA mimic SVG screen generated + injected + drift-guarded (`generate_fuxa_view.py`, B1).
 
 ## Done — Stage 3 (release & community)
 - [x] Community health: `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue/PR templates.

@@ -1,6 +1,6 @@
 """Soft-PLC STUB for OpenLogiTwin Phase 0.
 
-STUB: a stand-in for OpenPLC Runtime v4. It runs the conveyor sorting control
+STUB: a stand-in for OpenPLC Runtime v3. It runs the conveyor sorting control
 scan (plc/control_logic.py) against a Modbus data store, and optionally exposes
 that store as a Modbus TCP slave so the protocol gateway can connect as a master
 — exactly the way it will later connect to OpenPLC.
