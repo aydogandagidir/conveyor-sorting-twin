@@ -41,6 +41,9 @@ SUITE = [
     "tests/test_pages_landing.py",       # GitHub Pages landing page guard (A6)
     "tests/test_opcua_full_loop.py",     # end-to-end control loop over OPC UA (A7, skips w/o asyncua)
     "tests/test_godot_project.py",       # Godot scene wiring + bridge<->registry drift guard (B3)
+    # Note: tests/test_phase_gates.py is intentionally NOT listed — it is the pytest in-process
+    # wrapper for the two verify_phase0/1 gates already run as subprocesses above (entries 1-2).
+    # Listing it here would re-run the same gates with no added coverage; `pytest tests/` collects it.
 ]
 
 

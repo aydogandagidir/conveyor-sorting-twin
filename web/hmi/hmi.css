@@ -50,7 +50,7 @@ button{font-family:inherit}
 .bar .field .l{color:var(--ink-3);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
 .bar .field .v{font-size:13px;font-weight:600}
 .bar .comms{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-2)}
-.bar .comms .b{width:8px;height:8px;border:1px solid var(--line-2);background:var(--on)}
+.bar .comms .b{width:8px;height:8px;border:1px solid var(--line-2);background:var(--off)}
 .thbtn{margin-left:8px;background:var(--raised);color:var(--ink-2);border:1px solid var(--line);padding:6px 10px;font-size:11.5px;font-family:inherit;cursor:pointer}
 .thbtn:hover{border-color:var(--line-2);color:var(--ink)}
 

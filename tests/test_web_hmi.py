@@ -63,6 +63,18 @@ def test_live_mode_present():
     assert 'id="go-live"' in html and 'id="b-jam"' in html, "live-mode controls missing"
     js = _read(HMI, "hmi.js")
     assert "WebSocket" in js and "liveFrame" in js and "sendCmd" in js, "live-mode client missing"
+    # not just that the names exist — the button must be wired and the process controls must
+    # route to live commands when connected (guards against a dead/unwired live client).
+    assert '$("go-live").onclick' in js, "Go-live button is not wired to a handler"
+    assert "if (liveMode) return sendCmd(" in js, "process buttons must send live commands in LIVE mode"
+
+
+def test_estop_is_priority_one_alarm():
+    # ISA-18.2: an E-stop is the most critical event — it must be a P1 alarm, in both the
+    # replay button path and the live-frame edge handler (parity).
+    js = _read(HMI, "hmi.js")
+    assert 'addAlarm(1, "CELL-01"' in js, "E-stop must raise a priority-1 CELL-01 alarm"
+    assert 'addAlarm(2, "CELL-01"' not in js, "E-stop must not be a P2 alarm"
 
 
 def test_css_is_high_performance_hmi_compliant():

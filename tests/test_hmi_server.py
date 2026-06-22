@@ -26,7 +26,7 @@ def test_websocket_handshake_and_frame_shape():
         m = ws_recv(c)
         assert m and m[0] == 0x1, "no text frame received"
         frame = json.loads(m[1].decode())
-        assert {"t", "motor", "diverter", "jam", "a", "b", "pe1", "pe2", "parcels"} <= set(frame)
+        assert {"t", "motor", "diverter", "jam", "estop", "a", "b", "pe1", "pe2", "parcels"} <= set(frame)
         ws_send(c, json.dumps({"cmd": "start"}), mask=True)   # masked client->server command
         m2 = ws_recv(c)
         assert m2 and m2[0] == 0x1, "stream stopped after a command"
@@ -58,6 +58,46 @@ def test_engine_commands_drive_the_control_logic():
 
     eng.command("reset"); eng.command("start")
     assert any(eng.tick(0.05)["motor"] for _ in range(5)), "could not restart after Reset"
+
+
+def test_stop_command_halts_the_motor():
+    eng = TwinEngine(spawn_interval=0.3)
+    eng.command("start")
+    assert any(eng.tick(0.05)["motor"] for _ in range(5)), "Start did not run the motor"
+    eng.command("stop"); eng.tick(0.05)
+    assert not eng.tick(0.05)["motor"], "Stop pushbutton did not halt the motor"
+
+
+def test_jam_injection_latches_alarm_and_reset_recovers():
+    eng = TwinEngine(spawn_interval=0.3)
+    eng.command("start")
+    for _ in range(3):
+        eng.tick(0.05)
+    eng.command("jam")                       # stick a parcel blocking PE-002
+    f = None
+    for _ in range(80):                      # jam timer (~1 s) must trip
+        f = eng.tick(0.05)
+        if f["jam"]:
+            break
+    assert f["jam"], "injected jam did not raise alarm.jam_001"
+    assert not f["motor"], "motor must stop while jammed"
+    eng.command("reset"); eng.command("start")
+    recovered = False
+    for _ in range(10):
+        f = eng.tick(0.05)
+        if not f["jam"] and f["motor"]:
+            recovered = True
+            break
+    assert recovered, "Reset did not clear the jam / allow the cell to restart"
+
+
+def test_estop_appears_in_the_live_frame():
+    eng = TwinEngine(spawn_interval=0.3)
+    assert eng.tick(0.05)["estop"] is False, "estop should be clear initially"
+    eng.command("estop")
+    assert eng.tick(0.05)["estop"] is True, "E-stop must latch in the broadcast frame"
+    eng.command("reset")
+    assert eng.tick(0.05)["estop"] is False, "Reset must clear the latched E-stop"
 
 
 def _all_tests():
