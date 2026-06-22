@@ -84,7 +84,7 @@
     var i = Math.min(Math.floor(t / dt), frames.length - 1); if (i < 0) i = 0;
     var f = frames[i], g = frames[Math.min(i + 1, frames.length - 1)], fr = Math.min(Math.max((t - i * dt) / dt, 0), 1);
     var gm = new Map(g.parcels.map(function (p) { return [p.id, p]; }));
-    var parcels = f.parcels.map(function (p) { var q = gm.get(p.id); return { id: p.id, x: q ? p.x + (q.x - p.x) * fr : p.x, dest: p.dest, stuck: p.stuck }; });
+    var parcels = f.parcels.map(function (p) { var q = gm.get(p.id); return { id: p.id, x: q ? p.x + (q.x - p.x) * fr : p.x, dest: p.dest, stuck: q ? q.stuck : p.stuck }; });
     return { i: i, parcels: parcels, motor: f.motor, diverter: f.diverter, jam: f.jam, a: f.a, b: f.b, pe1: f.pe1, pe2: f.pe2 };
   }
   var set = function (id, k, v) { var e = $(id); if (e) e.setAttribute(k, v); };
@@ -348,6 +348,8 @@
       if (f.b > prevLive.b) addAlarm(4, "CHUTE-B", "Parcel sorted to Chute B", true, f.t);
       if (f.jam && !prevLive.jam) addAlarm(1, "DV-001", "Conveyor jam — sorter blocked", false, f.t);
       if (!f.jam && prevLive.jam) returnAlarm("DV-001");
+      if (f.estop && !prevLive.estop) addAlarm(1, "CELL-01", "E-stop actuated (operator)", false, f.t);
+      if (!f.estop && prevLive.estop) returnAlarm("CELL-01");
     }
     prevLive = f;
     liveTrend.push({ a: f.a, b: f.b }); if (liveTrend.length > 300) liveTrend.shift();
@@ -359,6 +361,7 @@
     $("go-live").textContent = on ? "■ Stop live" : "● Go live";
     ["scenario", "play", "speed", "seek"].forEach(function (id) { $(id).disabled = on; });
     $("b-jam").style.display = on ? "" : "none";
+    var d = $("comms-dot"); if (d) d.style.background = on ? "var(--on)" : "var(--off)";   // live link bright, replay dim
   }
   function sendCmd(cmd) { if (ws && liveMode) try { ws.send(JSON.stringify({ cmd: cmd })); } catch (e) {} }
   function liveErr(url) { var h = $("hint"); h.textContent = "No live server at " + url + " — run  python scripts/hmi_server.py  on that host."; h.style.display = "block"; if (ws) { try { ws.close(); } catch (e) {} } ws = null; liveMode = false; setMode("REPLAY", false); }
@@ -384,17 +387,17 @@
     fetch("traces/index.json").then(function (r) { return r.json(); }).then(function (idx) {
       var sel = $("scenario");
       idx.traces.forEach(function (n) { var o = document.createElement("option"); o.value = n; o.textContent = n.replace(/_/g, " "); sel.appendChild(o); });
-      sel.onchange = function () { loadTrace(sel.value); };
+      sel.onchange = function () { loadTrace(sel.value).catch(function () { $("hint").style.display = "block"; }); };
       return loadTrace(idx.traces[0]);
     }).catch(function () { $("hint").style.display = "block"; });
   }
   $("play").onclick = function () { playing = !playing; $("play").textContent = playing ? "⏸ Pause" : "▶ Play"; };
   $("speed").onchange = function (e) { speed = +e.target.value; };
-  $("seek").oninput = function (e) { simT = (+e.target.value) / 1000 * dur; lastIdx = -1; spark = []; alarms = []; clearVis(); renderAlarms(); };
+  $("seek").oninput = function (e) { simT = (+e.target.value) / 1000 * dur; lastIdx = Math.min(Math.floor(simT / dt), frames.length - 1); spark = []; alarms = []; clearVis(); renderAlarms(); };
   $("b-start").onclick = function () { if (liveMode) return sendCmd("start"); playing = true; $("play").textContent = "⏸ Pause"; };
   $("b-stop").onclick = function () { if (liveMode) return sendCmd("stop"); playing = false; $("play").textContent = "▶ Play"; };
   $("b-reset").onclick = function () { if (liveMode) return sendCmd("reset"); reset(); };
-  $("b-est").onclick = function () { if (liveMode) return sendCmd("estop"); playing = false; $("play").textContent = "▶ Play"; addAlarm(2, "CELL-01", "E-stop actuated (operator)"); };
+  $("b-est").onclick = function () { if (liveMode) return sendCmd("estop"); playing = false; $("play").textContent = "▶ Play"; addAlarm(1, "CELL-01", "E-stop actuated (operator)"); };
   $("b-jam").onclick = function () { sendCmd("jam"); };
   $("go-live").onclick = goLive;
   $("b-ack").onclick = function () { alarms.forEach(function (a) { if (a.state === "UNACK") a.state = "ACK"; }); renderAlarms(); };

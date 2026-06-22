@@ -111,7 +111,7 @@ def run_phase0_regression():
     import subprocess
     p = subprocess.run([sys.executable, os.path.join(_ROOT, "tests", "verify_phase0.py")],
                        capture_output=True, text=True)
-    ok = p.returncode == 0 and "19/19" in p.stdout
+    ok = p.returncode == 0   # the gate's own exit code is the source of truth (not a check-count literal)
     check("Phase 0 verification still passes", ok,
           (p.stdout.strip().splitlines() or ["<no output>"])[-1])
 

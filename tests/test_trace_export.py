@@ -52,6 +52,30 @@ def test_parcels_advance_under_motor():
     assert len(xs) >= 2 and xs[-1] > xs[0], "parcel P1 did not advance"
 
 
+def test_export_writes_files_and_manifest():
+    """The exporter's file-writing path is the seam the browser HMI fetches: per-scenario
+    JSON (with the keys hmi.js reads) + an index.json manifest. Exercise it end to end."""
+    import shutil
+    import tempfile
+    import export_trace
+    out = tempfile.mkdtemp()
+    orig = export_trace.OUT
+    export_trace.OUT = out
+    try:
+        assert export_trace.main(["barcode_sorting_basic"]) == 0
+        scenario_json = os.path.join(out, "barcode_sorting_basic.json")
+        assert os.path.exists(scenario_json), "per-scenario trace file not written"
+        with open(scenario_json, encoding="utf-8") as f:
+            tr = json.load(f)
+        assert {"frames", "dt", "layout"} <= set(tr), "trace JSON missing keys the HMI reads"
+        with open(os.path.join(out, "index.json"), encoding="utf-8") as f:
+            manifest = json.load(f)
+        assert "barcode_sorting_basic" in manifest["traces"], "manifest omits the scenario"
+    finally:
+        export_trace.OUT = orig
+        shutil.rmtree(out, ignore_errors=True)
+
+
 def _all_tests():
     return [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
 

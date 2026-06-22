@@ -88,12 +88,12 @@ def ws_handshake_client(sock, host="localhost"):
     return b" 101 " in resp.split(b"\r\n")[0] and ws_accept_key(key).encode() in resp
 
 
-def ws_send(sock, data, mask=False):
+def ws_send(sock, data, mask=False, opcode=0x1):
     if isinstance(data, str):
         data = data.encode("utf-8")
     n = len(data)
     mbit = 0x80 if mask else 0
-    header = bytes([0x81])
+    header = bytes([0x80 | opcode])   # FIN + opcode (0x1 text, 0xA pong, 0x8 close)
     if n < 126:
         header += bytes([mbit | n])
     elif n < 65536:
@@ -107,24 +107,59 @@ def ws_send(sock, data, mask=False):
     sock.sendall(header + data)
 
 
-def ws_recv(sock):
+def _read_frame(sock):
+    """Read one WebSocket frame. Returns (fin, opcode, payload), or (None, None, None)
+    on EOF / a truncated header (peer vanished mid-frame)."""
     h = _recv_exact(sock, 2)
     if h is None:
-        return None
+        return (None, None, None)
+    fin = h[0] & 0x80
     opcode = h[0] & 0x0F
     masked = h[1] & 0x80
     n = h[1] & 0x7F
     if n == 126:
-        n = struct.unpack(">H", _recv_exact(sock, 2))[0]
+        ext = _recv_exact(sock, 2)
+        if ext is None:
+            return (None, None, None)
+        n = struct.unpack(">H", ext)[0]
     elif n == 127:
-        n = struct.unpack(">Q", _recv_exact(sock, 8))[0]
-    mk = _recv_exact(sock, 4) if masked else None
+        ext = _recv_exact(sock, 8)
+        if ext is None:
+            return (None, None, None)
+        n = struct.unpack(">Q", ext)[0]
+    mk = None
+    if masked:
+        mk = _recv_exact(sock, 4)
+        if mk is None:
+            return (None, None, None)
     payload = _recv_exact(sock, n) if n else b""
     if payload is None:
-        return None
-    if masked and mk:
+        return (None, None, None)
+    if masked:
         payload = bytes(payload[i] ^ mk[i % 4] for i in range(n))
-    return (opcode, payload)
+    return (fin, opcode, payload)
+
+
+def ws_recv(sock):
+    """Receive one logical WebSocket message, reassembling continuation frames (RFC 6455).
+    Returns (opcode, payload) or None on disconnect. Control frames (close/ping/pong) are
+    never fragmented and are returned individually."""
+    fin, opcode, payload = _read_frame(sock)
+    if opcode is None:
+        return None
+    if opcode in (0x8, 0x9, 0xA):
+        return (opcode, payload)
+    data = payload
+    while not fin:                              # data frame fragmented across frames
+        fin, op, part = _read_frame(sock)
+        if op is None:
+            return None
+        if op in (0x8, 0x9, 0xA):               # interleaved control frame
+            if op == 0x8:
+                return (0x8, b"")
+            continue                            # ignore ping/pong between fragments
+        data += part
+    return (opcode, data)
 
 
 # =============================================================================
@@ -185,6 +220,7 @@ class TwinEngine:
         frame = {
             "t": round(self.t, 2), "motor": bool(motor), "diverter": bool(divert),
             "jam": bool(self.gw.read_tag("alarm.jam_001")),
+            "estop": bool(self.inputs["input.estop"]),
             "a": int(self.gw.read_tag("counter.sorted_chute_a")),
             "b": int(self.gw.read_tag("counter.sorted_chute_b")),
             "pe1": self.scene.sensor_blocked(self.scene.pe1_x),
@@ -233,8 +269,14 @@ class HmiServer:
                 self.clients.add(sock)
             while not self._stop.is_set():
                 msg = ws_recv(sock)
-                if msg is None or msg[0] == 0x8:
+                if msg is None or msg[0] == 0x8:        # disconnect / close
                     break
+                if msg[0] == 0x9:                       # ping -> pong (keep-alive)
+                    try:
+                        ws_send(sock, msg[1], opcode=0xA)
+                    except Exception:
+                        break
+                    continue
                 if msg[0] == 0x1:
                     try:
                         cmd = json.loads(msg[1].decode("utf-8")).get("cmd")
@@ -266,6 +308,11 @@ class HmiServer:
                 with self.lock:
                     for c in dead:
                         self.clients.discard(c)
+                for c in dead:                       # close so the client's reader thread unblocks
+                    try:
+                        c.close()
+                    except Exception:
+                        pass
             time.sleep(max(0, self.dt - (time.time() - t0)))
 
     def stop(self):
