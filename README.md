@@ -6,6 +6,10 @@
 [![runtime deps: stdlib only](https://img.shields.io/badge/runtime%20deps-stdlib%20only-success.svg)](#quickstart)
 [![live demo report](https://img.shields.io/badge/live-demo%20report-8a2be2.svg)](https://aydogandagidir.github.io/conveyor-sorting-twin/)
 
+[![OpenLogiTwin web HMI — ANSI/ISA-101 high-performance operator console](web/hero.svg)](https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/)
+
+<p align="center"><a href="https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/"><b>▶ Open the live web HMI</b></a> — ISA-101 operator console (replay in the browser, or go live over WebSocket)</p>
+
 A **narrow, demo-ready, technically credible** intralogistics digital twin: virtual parcels
 ride a conveyor, photo-eyes detect them, a decoded barcode drives a diverter, **PLC logic**
 controls the outputs over **real Modbus TCP**, an HMI/SCADA can monitor it, and telemetry
@@ -49,6 +53,8 @@ python -m openlogitwin demo        # run every scenario → telemetry/exports/de
 ```
 `python -m openlogitwin <command>` is the front door (`hmi` · `demo` · `scenarios` · `export` · `plc` · `test`); each also runs directly as `python scripts/<name>.py`. The core needs **no third-party packages** (Python 3.9+); `pip install -e .` adds an `openlogitwin` console command (`pytest` / `pymodbus` are optional dev extras).
 
+**New here?** Walk through the [**5-minute tour**](GETTING_STARTED.md) → run it, drive the HMI, go live.
+
 ## Status
 | Phase | Scope | State |
 |-------|-------|-------|
@@ -89,6 +95,7 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 ## Documentation
 | Topic | Link |
 |-------|------|
+| **Getting started** | [`GETTING_STARTED.md`](GETTING_STARTED.md) — a 5-minute tour |
 | Architecture | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | Acceptance criteria | [`docs/ACCEPTANCE_CRITERIA.md`](docs/ACCEPTANCE_CRITERIA.md) |
 | Roadmap · Changelog | [`docs/ROADMAP.md`](docs/ROADMAP.md) · [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |

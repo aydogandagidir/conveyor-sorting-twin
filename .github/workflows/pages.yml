@@ -31,6 +31,7 @@ jobs:
         run: |
           python scripts/run_full_demo.py --export-dir=_site
           cp web/index.html _site/index.html        # landing links to demo_report.html + /hmi/
+          cp web/hero.svg _site/hero.svg             # hero image embedded in the landing + README
           python scripts/export_trace.py             # writes web/hmi/traces/*.json
           mkdir -p _site/hmi
           cp -r web/hmi/* _site/hmi/                 # the live web HMI (replays the traces)
