@@ -23,7 +23,7 @@ Status legend: ✅ done & verified · 🟡 in progress · ⬜ planned · 🔒 de
 - **Track A / v0.4.0** — hardening & integration (see below): MQTT-from-CLI, scenario gallery,
   control robustness, barcode simulator, performance baseline, Pages landing, OPC UA full loop.
 - **GitHub Pages** — project landing + auto-published demo report: https://aydogandagidir.github.io/conveyor-sorting-twin/
-- 28 test files green (pytest 99 passed, 7 optional backend skips); CI matrix Python 3.9/3.11/3.13 × Ubuntu/Windows.
+- 31 test files green (pytest 109 passed, 7 optional backend skips); CI matrix Python 3.9/3.11/3.13 × Ubuntu/Windows.
 
 ## Track A — hardening & integration (done in v0.4.0)
 Each landed via branch → PR → CI → merge.
@@ -63,6 +63,16 @@ https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/
 - ✅ **Live mode (V3)** — `scripts/hmi_server.py` streams the running twin over a hand-rolled stdlib
   WebSocket (RFC 6455); the HMI's process buttons drive the real soft-PLC. `tests/test_hmi_server.py`.
 
-## Next — v0.7.0 productization (planned)
-- ⬜ One-command launcher + onboarding (single entry point that starts the live server and opens the
-  HMI), packaging/distribution, and a guided first-run. See `sprints/SPRINT_BACKLOG.md`.
+## Productization (V5) — v0.7.0
+One command (or one container) from clone to a running operator console; each landed via
+branch → PR → CI → merge.
+- ✅ **V5.1 · One-command launcher** — `scripts/start.py` / `python -m openlogitwin` (exports
+  traces, serves the HMI, starts the live twin, opens the browser).
+- ✅ **V5.2 · Unified CLI + pip** — `python -m openlogitwin <hmi|demo|scenarios|export|plc|test>`;
+  `pip install -e .` adds an `openlogitwin` console command.
+- ✅ **V5.3 · Turnkey Docker demo** — `docker compose --profile demo up --build` (verified on real
+  Docker; HMI + live twin in one container).
+- ✅ **V5.4 · Onboarding** — `GETTING_STARTED.md` (5-minute tour) + an ANSI/ISA-101 hero
+  (`web/hero.svg`) leading the README + landing.
+- ⬜ **V5.5 · Self-contained PyPI wheel + publish** — bundle the source dirs under the package so
+  `pip install openlogitwin` works from PyPI (a focused restructure + a PyPI account).

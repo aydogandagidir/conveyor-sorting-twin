@@ -120,7 +120,7 @@ CI activates on first git push.
 ### Verified
 ```
 python scripts/run_tests.py     # all test files -> SUITE GREEN
-python -m pytest tests/ -q      # green (pytest 99 passed, 7 skipped at time of writing)
+python -m pytest tests/ -q      # green (pytest 109 passed, 7 skipped at time of writing)
 ```
 
 ---
