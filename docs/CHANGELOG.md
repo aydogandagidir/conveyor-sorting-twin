@@ -3,6 +3,31 @@
 All notable changes to OpenLogiTwin. Grouped by development phase (the project predates
 formal release tags). Dates are UTC.
 
+## [0.7.0] — 2026-06-22
+
+Productization release: the twin is now **turnkey** — one command (or one container) from clone to
+a running operator console — with a unified CLI, an onboarding tour, and a README/landing hero.
+
+### Added
+- **One-command launcher** (V5.1): `scripts/start.py` exports traces if missing, serves the web
+  HMI, starts the live twin, and opens the browser (`--no-live` / `--no-browser` / `--host` /
+  `--port`). `tests/test_launcher.py`.
+- **Unified CLI** (V5.2): `python -m openlogitwin <hmi|demo|scenarios|export|plc|test>` (thin
+  `openlogitwin/` front-door package); `pip install -e .` adds an `openlogitwin` console command
+  (`[build-system]` + `[project.scripts]`). `tests/test_cli.py`.
+- **Turnkey Docker demo** (V5.3): a `demo` profile runs the launcher in one container
+  (`docker compose --profile demo up --build`) — verified against real Docker.
+  `tests/test_deployment.py`.
+- **Onboarding** (V5.4): `GETTING_STARTED.md` (a 5-minute tour) and a synthetic ANSI/ISA-101 HMI
+  hero (`web/hero.svg`) now lead the README + landing page. `tests/test_pages_landing.py`.
+
+### Changed
+- `pyproject` + `openlogitwin.__version__` → 0.7.0. No plant/behaviour change; SUITE 31 files green.
+
+### Note
+- Self-contained PyPI publishing (bundling the source dirs under the package) is the remaining
+  packaging step (V5.5); `python -m openlogitwin` and `pip install -e .` work today from a clone.
+
 ## [0.6.0] — 2026-06-22
 
 Web HMI release: a zero-install, browser-based **ANSI/ISA-101 high-performance HMI** for the

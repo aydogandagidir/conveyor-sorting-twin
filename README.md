@@ -27,7 +27,7 @@ warehouse automation you can run, test, and extend.
   bit-reproducible; CI asserts identical re-runs.
 - **Honest engineering** — stubs are named `stub` with TODO criteria, decisions live in [`adr/`](adr),
   nothing is faked. Optional integrations (pymodbus, OpenPLC, FUXA, Godot) degrade/skip cleanly.
-- **Tested & green** — 28 dual-mode test files run by one stdlib command and a
+- **Tested & green** — 31 dual-mode test files run by one stdlib command and a
   Python 3.9–3.13 × Ubuntu/Windows CI matrix.
 - **Browser HMI (ANSI/ISA-101)** — a zero-install, high-performance web operator console:
   replays deterministic traces, or goes **live** over a stdlib WebSocket to drive the running twin.
@@ -79,7 +79,7 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 ├── hmi/fuxa/           # FUXA tag list + project generator + integration guide
 ├── web/hmi/            # ISA-101 web HMI (trace replay + live WebSocket) + Pages landing
 ├── deployment/         # Dockerfile + profiled docker-compose + .env.example
-├── tests/              # 28 dual-mode test files (run directly or via pytest)
+├── tests/              # 31 dual-mode test files (run directly or via pytest)
 ├── openlogitwin/       # thin CLI front door: python -m openlogitwin (+ `openlogitwin` via pip -e)
 ├── scripts/            # start (launcher), run_tests, run_full_demo, scenario_manager, generators
 └── docs/  adr/  sprints/
