@@ -43,6 +43,7 @@ Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · decisions: [`adr/
 git clone https://github.com/aydogandagidir/conveyor-sorting-twin.git
 cd conveyor-sorting-twin
 
+python scripts/start.py                     # ▶ one command: serve the web HMI + live twin, open the browser
 python scripts/run_tests.py                 # full suite → SUITE GREEN (no dependencies)
 python scripts/run_full_demo.py             # run all scenarios → telemetry/exports/demo_report.html
 python scripts/scenario_manager.py run-all  # scenario suite, checks each expect block

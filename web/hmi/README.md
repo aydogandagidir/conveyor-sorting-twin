@@ -33,7 +33,13 @@ ANSI/ISA-18.2), per Bill Hollifield / PAS and Rockwell's Process HMI Style Guide
   tabs) and the HP-HMI render + alarm model.
 
 ## Run it
-The HMI fetches `traces/*.json`, so serve it over HTTP (browsers block `fetch` from `file://`):
+Simplest — the one-command launcher exports traces, serves the HMI, starts the live twin, and
+opens the browser:
+```bash
+python scripts/start.py               # --no-live for replay only, --no-browser to just print the URL
+```
+Or do it by hand. The HMI fetches `traces/*.json`, so serve it over HTTP (browsers block `fetch`
+from `file://`):
 ```bash
 python scripts/export_trace.py        # writes web/hmi/traces/*.json + index.json
 python -m http.server --directory web 8099
