@@ -3,22 +3,45 @@
 All notable changes to OpenLogiTwin. Grouped by development phase (the project predates
 formal release tags). Dates are UTC.
 
-## [0.3.0] — 2026-06-18
+## [0.6.0] — 2026-06-22
+
+Web HMI release: a zero-install, browser-based **ANSI/ISA-101 high-performance HMI** for the
+sorting cell — first as deterministic trace replay, then as a live view of the running twin.
 
 ### Added
-- **Multi-parcel FIFO cell** (ADR-0005): `tags.sorting_cell_advanced.json` (8-slot destination
-  ring), cell-aware `ScenarioRunner` / `scenario_manager` (the scenario `cell` field selects the
-  profile), `scenarios/dense_sort_advanced.json`, and `tests/test_advanced_cell.py`. Densely-spaced
-  parcels route correctly — the advanced cell sorts a dense stream 4/4 where the MVP single
-  register mis-routes it 2/6.
-- **Community health & first release**: `CODE_OF_CONDUCT.md`, `SECURITY.md`, GitHub issue/PR
-  templates. Published to GitHub with CI green across Python 3.9–3.13 × Ubuntu/Windows.
+- **Deterministic trace export** (V0): `scripts/export_trace.py` runs scenarios through the same
+  cell-aware `ScenarioRunner` and writes `web/hmi/traces/*.json` + `index.json` (reproducible,
+  stdlib only). `tests/test_trace_export.py`.
+- **Web HMI** (V1–V2): `web/hmi/` (`index.html`, `hmi.css`, `hmi.js`) replays exported traces in
+  the browser, redesigned to the **High-Performance HMI** doctrine (ANSI/ISA-101, per Hollifield/PAS
+  + Rockwell PROCES-WP023): gray canvas, equipment by outline, colour reserved for live data +
+  alarms, status by brightness + word, no gradients/shadows/glow.
+- **ISA-18.2 alarm UX**: docked highest-priority banner + alarm summary (priority/time/tag/
+  description/state, UNACK/ACK/RTN, blink-until-ack); a jam is surfaced by a redundant indicator at
+  the diverter, never by recolouring the belt.
+- **Faceplates + display hierarchy + theme**: equipment faceplates with alarm rationalisation
+  (cause/consequence/corrective action), an L1 Line / L2 Cell / L3 I/O navigation hierarchy, and a
+  light/dark control-room theme.
+- **Live HMI mode** (V3): `scripts/hmi_server.py` runs the soft-PLC + scene in real time and
+  broadcasts a per-tick frame over a **hand-rolled WebSocket** (RFC 6455, stdlib only — same
+  zero-dependency ethos as the Modbus server, ADR-0002/ADR-0009); the HMI's Start/Stop/Reset/
+  E-STOP/Inject-jam buttons drive the actual control logic. Default `ws://127.0.0.1:8765`
+  (`HMI_HOST`/`HMI_PORT`). `tests/test_hmi_server.py`.
+- **Drift guards**: `tests/test_web_hmi.py` (structure + HP-HMI compliance — no gradients/shadows,
+  tabular numerics, alarm rationalisation, live-mode wiring). GitHub Pages `pages.yml` now runs
+  `export_trace.py` and publishes the HMI at `/<repo>/hmi/` (replay-only; live mode is local/LAN).
+
+### Fixed
+- **HMI**: E-stop is a P1 alarm (was P2) and now surfaces in live mode (the server frame carries an
+  `estop` flag); seeking no longer re-injects historical alarms; the comms dot reflects real link
+  state instead of a fixed always-on lamp.
+- **Live WebSocket server**: RFC 6455 robustness — reassemble fragmented frames, guard a truncated
+  header, answer PING with PONG, and reap dead client sockets.
+- **`export_trace.py`**: tolerate a cross-drive `OUT` path in progress logging (Windows CI).
 
 ### Changed
-- Framed as a "digital twin"; `pyproject` version → 0.3.0. MVP cell behaviour unchanged
-  (determinism preserved).
-
-## [Unreleased]
+- `pyproject` version → 0.6.0. Plant behaviour and determinism unchanged — the HMI is a *view* over
+  the same `scene_model.py` trace the suite verifies. 28 SUITE files green; pytest 99 passed.
 
 ## [0.5.0] — 2026-06-20
 
@@ -119,4 +142,20 @@ performance baseline, and a proper GitHub Pages landing page.
   `tag_registry.py`, `gateway.py`, soft-PLC stub, SQLite telemetry with CSV/JSON export.
 - Engineering Gate 1 proven end to end (19/19).
 
-[Unreleased]: project history tracked by phase; see docs/ROADMAP.md for what's next.
+## [0.3.0] — 2026-06-18
+
+### Added
+- **Multi-parcel FIFO cell** (ADR-0005): `tags.sorting_cell_advanced.json` (8-slot destination
+  ring), cell-aware `ScenarioRunner` / `scenario_manager` (the scenario `cell` field selects the
+  profile), `scenarios/dense_sort_advanced.json`, and `tests/test_advanced_cell.py`. Densely-spaced
+  parcels route correctly — the advanced cell sorts a dense stream 4/4 where the MVP single
+  register mis-routes it 2/6.
+- **Community health & first release**: `CODE_OF_CONDUCT.md`, `SECURITY.md`, GitHub issue/PR
+  templates. Published to GitHub with CI green across Python 3.9–3.13 × Ubuntu/Windows.
+
+### Changed
+- Framed as a "digital twin"; `pyproject` version → 0.3.0. MVP cell behaviour unchanged
+  (determinism preserved).
+
+<!-- Releases are newest-first above; the Phase 0–3 notes under 0.4.0 are the pre-tag PoC
+history. See docs/ROADMAP.md for what's next. -->

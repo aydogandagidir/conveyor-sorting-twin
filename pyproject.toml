@@ -1,6 +1,6 @@
 [project]
 name = "openlogitwin"
-version = "0.5.0"
+version = "0.6.0"
 description = "OpenLogiTwin — conveyor sorting cell digital twin (intralogistics PLC training / virtual commissioning)"
 requires-python = ">=3.9"
 # Phase 0 and Phase 1 require NO third-party runtime dependencies (stdlib only).
@@ -16,7 +16,7 @@ dev = [
   "paho-mqtt>=1.6",   # Phase 2/3: MQTT telemetry publisher (third protocol priority)
 ]
 
-# Tested on Python 3.9, 3.10, 3.11, 3.13 (see .github/workflows/verify.yml).
+# Tested on Python 3.9, 3.11, 3.13 (see .github/workflows/verify.yml).
 
 [tool.pytest.ini_options]
 # `pytest tests/` collects test_*.py (incl. test_phase_gates.py, which runs the

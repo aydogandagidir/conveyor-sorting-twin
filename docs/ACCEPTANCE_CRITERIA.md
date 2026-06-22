@@ -47,7 +47,7 @@ python scripts/run_demo.py         # human-readable parcel routing + export
 ```
 
 ### Known limitations (Phase 0)
-- Soft-PLC is a **stub** for OpenPLC Runtime v4 (clearly named; see ADR-0002).
+- Soft-PLC is a **stub** for OpenPLC Runtime v3 (clearly named; see ADR-0002).
 - Modbus implementation is a standards-compliant **subset** (FC 1/2/3/4/5/6/15/16),
   not a full stack; swappable for pymodbus / OpenPLC (ADR-0002).
 - Jam detection tag exists but auto-detection logic is deferred to Phase 1.
@@ -120,18 +120,19 @@ CI activates on first git push.
 ### Verified
 ```
 python scripts/run_tests.py     # all test files -> SUITE GREEN
-python -m pytest tests/ -q      # green (pytest 46 passed, 2 skipped at time of writing)
+python -m pytest tests/ -q      # green (pytest 99 passed, 7 skipped at time of writing)
 ```
 
 ---
 
-## Phase 2 — HMI + Scenario Manager  *(in progress)*
+## Phase 2 — HMI + Scenario Manager  *(complete & verified)*
 
-- [~] FUXA-compatible HMI template — device tag list auto-generated
+- [x] FUXA-compatible HMI template — device tag list auto-generated
       (`scripts/generate_hmi_tag_list.py`, drift-guarded) + a generated FUXA project
       (`scripts/generate_fuxa_project.py` → device + 12 tags, best-effort vs the FUXA model,
       structure-tested) + `hmi/fuxa/INTEGRATION.md` + `docker-compose` `hmi` profile.
-      SVG mimic screens still authored in FUXA.
+      An SVG mimic screen is now generated + injected + drift-guarded
+      (`scripts/generate_fuxa_view.py`, `tests/test_fuxa_view.py`).
 - [x] Scenario JSON files — 5 scenarios incl. 3 fault/control
       (`estop_during_run`, `stop_button_basic`, `rapid_jam_reset`) with `expect` blocks.
 - [x] Fault injection panel or CLI — `scripts/scenario_manager.py`
@@ -149,8 +150,10 @@ python scripts/run_tests.py                          # all files -> SUITE GREEN
 .venv/Scripts/python tests/test_pymodbus_adapter.py  # real pymodbus interop, 5/5
 ```
 
-### Remaining (Phase 2)
-- [ ] FUXA mimic project JSON (SVG screens) — authored & exported inside FUXA.
+### Closed (Phase 2)
+- [x] FUXA mimic SVG screen — generated + injected into the project and drift-guarded
+      (`scripts/generate_fuxa_view.py`, `tests/test_fuxa_view.py`); FUXA persists it with 5
+      readouts bound to the device tags (verified in Docker, 0.5.0).
 
 ## Phase 3 — Productization  *(verifiable parts complete)*
 - [x] Demo script — `scripts/run_full_demo.py` (runs the scenario suite, aggregates metrics).
@@ -164,10 +167,20 @@ python scripts/run_tests.py                          # all files -> SUITE GREEN
 - [x] Training scenario docs (3b) — `docs/TRAINER_GUIDE.md`, `docs/FAULT_SCENARIOS.md`, `docs/SCENARIOS.md`.
 - [x] Docs polish (3d) — `docs/ROADMAP.md`, `docs/CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE` (MIT; changeable).
 
-### External-runtime best-effort (provided; verify in their tools)
-- [~] FUXA project JSON — `scripts/generate_fuxa_project.py` (structure-tested); import into FUXA.
-- [~] Godot 4.x scaffold — `simulation/godot-project/project.godot` + GDScript client/bridge; open in Godot.
-- 🔒 Real OpenPLC ST run + Godot `.tscn` scene — need the external runtime (harnesses/scaffolds provided).
+### External runtimes (verified headlessly in Docker, 0.5.0)
+- [x] FUXA v1.3.3 — generated project connects + polls the twin over Modbus; SVG mimic injected
+      with bound readouts (`scripts/generate_fuxa_view.py`, `tests/test_fuxa_view.py`).
+- [x] OpenPLC Runtime v3 — `03_sorting_cell_commissioning.st` driven over Modbus matches the
+      soft-PLC (`tests/test_openplc_behavioral.py`).
+- [x] Godot 4.2 headless — `cell.tscn` + `cell.gd` import/run and drive real sorts over Modbus
+      (`tests/test_godot_project.py`).
+
+## Web HMI — browser operator console (V0–V3)  *(complete & verified)*
+- [x] Deterministic trace export (`scripts/export_trace.py`, `tests/test_trace_export.py`).
+- [x] ANSI/ISA-101 high-performance web HMI replaying traces; ISA-18.2 alarms, faceplates,
+      L1/L2/L3 hierarchy, light/dark theme — drift-guarded by `tests/test_web_hmi.py`.
+- [x] Live mode: `scripts/hmi_server.py` streams the running twin over a stdlib WebSocket and the
+      HMI's buttons drive the real soft-PLC (`tests/test_hmi_server.py`). Browser-verified end to end.
 
 ### Verified (3a/3b/3c)
 ```

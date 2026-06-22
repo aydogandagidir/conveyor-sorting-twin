@@ -1,6 +1,6 @@
 """Run the soft-PLC Modbus TCP slave standalone (Ctrl+C to stop).
 
-This is the STUB stand-in for OpenPLC Runtime v4. Point any Modbus master
+This is the STUB stand-in for OpenPLC Runtime v3. Point any Modbus master
 (the gateway, a SCADA, or a Modbus poll tool) at the printed host:port.
 
 Env overrides:

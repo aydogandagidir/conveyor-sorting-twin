@@ -5,7 +5,7 @@ driven over real Modbus TCP, with fault injection and a results report.
 
 ## Prerequisites
 - Python 3.9+ (no third-party packages for the core).
-- Optional: Docker + FUXA for the HMI (`docs/DEPLOYMENT.md`); OpenPLC Runtime v4 to replace
+- Optional: Docker + FUXA for the HMI (`docs/DEPLOYMENT.md`); OpenPLC Runtime v3 to replace
   the soft-PLC with a real PLC (`plc/examples/`).
 
 ## Suggested progression

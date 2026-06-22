@@ -23,8 +23,10 @@ warehouse automation you can run, test, and extend.
   bit-reproducible; CI asserts identical re-runs.
 - **Honest engineering** — stubs are named `stub` with TODO criteria, decisions live in [`adr/`](adr),
   nothing is faked. Optional integrations (pymodbus, OpenPLC, FUXA, Godot) degrade/skip cleanly.
-- **Tested & green** — 14 dual-mode test files run by one stdlib command and a
+- **Tested & green** — 28 dual-mode test files run by one stdlib command and a
   Python 3.9–3.13 × Ubuntu/Windows CI matrix.
+- **Browser HMI (ANSI/ISA-101)** — a zero-install, high-performance web operator console:
+  replays deterministic traces, or goes **live** over a stdlib WebSocket to drive the running twin.
 
 ## Architecture
 ```
@@ -33,7 +35,7 @@ virtual sensor event → tag registry → protocol gateway (Modbus TCP)
    → telemetry event (SQLite → CSV/JSON)
 ```
 The gateway is backend-agnostic (in-repo Modbus, in-process, or pymodbus); the soft-PLC takes a
-swappable control program and is a documented stand-in for **OpenPLC Runtime v4**.
+swappable control program and is a documented stand-in for **OpenPLC Runtime v3**.
 Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · decisions: [`adr/`](adr).
 
 ## Quickstart
@@ -53,8 +55,9 @@ The core needs **no third-party packages** (Python 3.9+); `pytest` / `pymodbus` 
 | 0 — PoC Connectivity | real Modbus TCP loop, tag registry, soft-PLC, telemetry | ✅ 19/19 |
 | 1 — MVP Scene | deterministic sorting cell: routing, jam, counters | ✅ 14/14 |
 | 1.5 — Hardening | CI, pytest, control unit tests, E-stop NC fail-safe, multi-parcel FIFO | ✅ |
-| 2 — HMI + Scenario Manager | scenario CLI, fault scenarios, pymodbus adapter, FUXA tag list | 🟡 mimic screens pending |
-| 3 — Productization | demo + report, deployment, sample OpenPLC ST, training docs | 🟡 verifiable parts done |
+| 2 — HMI + Scenario Manager | scenario CLI, fault scenarios, pymodbus adapter, FUXA mimic | ✅ |
+| 3 — Productization | demo + report, deployment, sample OpenPLC ST, training docs | ✅ |
+| Web HMI (V0–V3) | ISA-101 browser console: trace replay + live WebSocket mode | ✅ |
 
 Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md).
 
@@ -68,16 +71,18 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 ├── telemetry/          # SQLite logger + CSV/JSON export
 ├── scenarios/          # deterministic scenario JSONs + schema
 ├── hmi/fuxa/           # FUXA tag list + project generator + integration guide
+├── web/hmi/            # ISA-101 web HMI (trace replay + live WebSocket) + Pages landing
 ├── deployment/         # Dockerfile + profiled docker-compose + .env.example
-├── tests/              # 14 dual-mode test files (run directly or via pytest)
+├── tests/              # 28 dual-mode test files (run directly or via pytest)
 ├── scripts/            # run_tests, run_full_demo, scenario_manager, generators
 └── docs/  adr/  sprints/
 ```
 
 ## Run it for real
+- **Web HMI (ISA-101)** — `python scripts/export_trace.py` then `python -m http.server --directory web 8099` → open `/hmi/`. Live mode: `python scripts/hmi_server.py` and click **Go live**. See [`web/hmi/README.md`](web/hmi/README.md), or the hosted replay at [the live HMI](https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/).
 - **Soft-PLC over Modbus** — `python scripts/run_soft_plc.py`, or `docker compose -f deployment/docker-compose.yml --profile full up --build`.
 - **HMI (FUXA)** — [`hmi/fuxa/INTEGRATION.md`](hmi/fuxa/INTEGRATION.md).
-- **Real PLC** — load [`plc/examples/*.st`](plc/examples) into OpenPLC Runtime v4.
+- **Real PLC** — load [`plc/examples/*.st`](plc/examples) into OpenPLC Runtime v3.
 - **Author scenarios / train** — [`docs/SCENARIOS.md`](docs/SCENARIOS.md) · [`docs/TRAINER_GUIDE.md`](docs/TRAINER_GUIDE.md).
 
 ## Documentation
