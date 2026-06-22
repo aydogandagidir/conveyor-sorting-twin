@@ -21,6 +21,15 @@ from scenario_runner import ScenarioRunner  # noqa: E402
 
 OUT = os.path.join(_ROOT, "web", "hmi", "traces")
 
+
+def _rel(p):
+    """Path relative to the repo root for tidy logging — falls back to the absolute
+    path when they live on different drives (Windows temp dirs in CI)."""
+    try:
+        return os.path.relpath(p, _ROOT)
+    except ValueError:
+        return p
+
 # Curated for the web demo: a clean sort, a fault/recovery, barcode routing, a dense advanced run.
 DEMO = ["barcode_sorting_basic", "jam_recovery_basic", "barcode_routing", "dense_sort_advanced"]
 
@@ -39,7 +48,7 @@ def export(name):
     out = os.path.join(OUT, f"{name}.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(result["trace"], f, separators=(",", ":"))
-    print(f"  {name:24} -> {os.path.relpath(out, _ROOT)}  "
+    print(f"  {name:24} -> {_rel(out)}  "
           f"({len(result['trace']['frames'])} frames, A/B={result['sorted_a']}/{result['sorted_b']})")
     return name
 
@@ -53,7 +62,7 @@ def main(argv):
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"traces": index}, f, indent=2)
-    print(f"  manifest -> {os.path.relpath(os.path.join(OUT, 'index.json'), _ROOT)} ({len(index)} traces)")
+    print(f"  manifest -> {_rel(os.path.join(OUT, 'index.json'))} ({len(index)} traces)")
     return 0
 
 
