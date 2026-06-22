@@ -13,6 +13,9 @@ import sys
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LANDING = os.path.join(_ROOT, "web", "index.html")
 PAGES_WF = os.path.join(_ROOT, ".github", "workflows", "pages.yml")
+README = os.path.join(_ROOT, "README.md")
+HERO = os.path.join(_ROOT, "web", "hero.svg")
+GETTING_STARTED = os.path.join(_ROOT, "GETTING_STARTED.md")
 
 
 def _read(path):
@@ -44,6 +47,21 @@ def test_pages_workflow_publishes_the_landing():
     assert "web/index.html" in wf and "_site/index.html" in wf
     # and it must still build the report the landing points at
     assert "run_full_demo.py" in wf
+
+
+def test_hero_image_present_and_published():
+    assert os.path.exists(HERO), "web/hero.svg (the HMI hero image) is missing"
+    svg = _read(HERO)
+    assert svg.lstrip().startswith("<svg") and "</svg>" in svg, "hero.svg is not a valid SVG"
+    assert "hero.svg" in _read(LANDING), "the landing must embed the hero image"
+    assert "web/hero.svg" in _read(README), "the README must show the hero image"
+    wf = _read(PAGES_WF)
+    assert "web/hero.svg" in wf and "_site/hero.svg" in wf, "pages.yml must publish hero.svg"
+
+
+def test_getting_started_present_and_linked():
+    assert os.path.exists(GETTING_STARTED), "GETTING_STARTED.md is missing"
+    assert "GETTING_STARTED.md" in _read(README), "the README must link the getting-started tour"
 
 
 def _all_tests():
