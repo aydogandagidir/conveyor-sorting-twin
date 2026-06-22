@@ -43,12 +43,11 @@ Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · decisions: [`adr/
 git clone https://github.com/aydogandagidir/conveyor-sorting-twin.git
 cd conveyor-sorting-twin
 
-python scripts/start.py                     # ▶ one command: serve the web HMI + live twin, open the browser
-python scripts/run_tests.py                 # full suite → SUITE GREEN (no dependencies)
-python scripts/run_full_demo.py             # run all scenarios → telemetry/exports/demo_report.html
-python scripts/scenario_manager.py run-all  # scenario suite, checks each expect block
+python -m openlogitwin             # ▶ launch the web HMI (replay + live) and open the browser
+python -m openlogitwin test        # the full test suite → SUITE GREEN (no dependencies)
+python -m openlogitwin demo        # run every scenario → telemetry/exports/demo_report.html
 ```
-The core needs **no third-party packages** (Python 3.9+); `pytest` / `pymodbus` are optional dev extras.
+`python -m openlogitwin <command>` is the front door (`hmi` · `demo` · `scenarios` · `export` · `plc` · `test`); each also runs directly as `python scripts/<name>.py`. The core needs **no third-party packages** (Python 3.9+); `pip install -e .` adds an `openlogitwin` console command (`pytest` / `pymodbus` are optional dev extras).
 
 ## Status
 | Phase | Scope | State |
@@ -75,7 +74,8 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 ├── web/hmi/            # ISA-101 web HMI (trace replay + live WebSocket) + Pages landing
 ├── deployment/         # Dockerfile + profiled docker-compose + .env.example
 ├── tests/              # 28 dual-mode test files (run directly or via pytest)
-├── scripts/            # run_tests, run_full_demo, scenario_manager, generators
+├── openlogitwin/       # thin CLI front door: python -m openlogitwin (+ `openlogitwin` via pip -e)
+├── scripts/            # start (launcher), run_tests, run_full_demo, scenario_manager, generators
 └── docs/  adr/  sprints/
 ```
 

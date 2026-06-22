@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "openlogitwin"
 version = "0.6.0"
@@ -17,6 +21,16 @@ dev = [
 ]
 
 # Tested on Python 3.9, 3.11, 3.13 (see .github/workflows/verify.yml).
+
+[project.scripts]
+# Console entry point for editable / source installs (`pip install -e .` from a clone).
+# A self-contained PyPI wheel that bundles the source dirs under the package is future work (V5.5).
+openlogitwin = "openlogitwin.cli:main"
+
+[tool.setuptools]
+# The runtime lives in the repo's (hyphenated, non-importable) source dirs; the only Python
+# package is the thin `openlogitwin` CLI front door — don't let setuptools auto-discover the rest.
+packages = ["openlogitwin"]
 
 [tool.pytest.ini_options]
 # `pytest tests/` collects test_*.py (incl. test_phase_gates.py, which runs the
