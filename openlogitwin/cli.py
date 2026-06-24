@@ -26,9 +26,14 @@ DEFAULT = "hmi"
 
 
 def _bootstrap():
+    # An installed wheel carries the runtime under openlogitwin/_bundled/ (see setup.py); a clone
+    # or editable install runs from the repo dirs. Each module resolves its own paths relative to
+    # __file__, so either base works once its source dirs are on sys.path.
+    bundled = os.path.join(_PKG, "_bundled")
+    base = bundled if os.path.isdir(bundled) else _ROOT
     for sub in _SRC_DIRS:
-        path = os.path.join(_ROOT, sub)
-        if path not in sys.path:
+        path = os.path.join(base, sub)
+        if os.path.isdir(path) and path not in sys.path:
             sys.path.insert(0, path)
 
 
