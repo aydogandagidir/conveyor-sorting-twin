@@ -21,7 +21,7 @@ collectable by pytest. The pymodbus interop tests skip cleanly when pymodbus is 
 
 ## Conventions
 - **No fake integrations.** A stand-in must be named `*stub*` and carry TODO replacement
-  criteria (see `plc/soft_plc.py`, `adapters/opcua_stub.py`).
+  criteria (see `plc/soft_plc.py`).
 - **Don't break the gates.** `tests/verify_phase0.py` (19/19) and `tests/verify_phase1.py`
   (14/14) must stay green; `verify_phase1` also re-runs Phase 0.
 - **Tag registry is the source of truth.** Don't hand-edit `hmi/fuxa/tag_list_*.csv`; run
@@ -29,7 +29,8 @@ collectable by pytest. The pymodbus interop tests skip cleanly when pymodbus is 
 - **Deterministic scenarios.** New scenarios go in `scenarios/*.json`, validate against
   `scenarios/schema.json`, and carry an `expect` block (`scenario_manager.py run-all` checks them).
 - **Document decisions** in `adr/NNNN-title.md` (Context / Decision / Rationale / Consequences
-  / Alternatives). Update `docs/ACCEPTANCE_CRITERIA.md` and `sprints/SPRINT_BACKLOG.md`.
+  / Alternatives) and add a row to [`adr/README.md`](adr/README.md). Keep `docs/CHANGELOG.md` and
+  `docs/ROADMAP.md` current (and `docs/ACCEPTANCE_CRITERIA.md` when acceptance changes).
 
 ## Adding a test
 Mirror the existing pattern: `test_*` functions with plain `assert`s, plus a `main()` that runs

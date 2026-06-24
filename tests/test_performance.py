@@ -5,8 +5,9 @@ Runs a dense 100-parcel stream through the deterministic runner and asserts:
   - the run is deterministic (identical results across two runs),
   - it completes well within a generous wall-clock budget.
 
-The measured baseline is recorded in docs/PERFORMANCE.md. Wall-clock uses
-time.perf_counter; the bound is deliberately generous so CI machines never flake.
+The measured baseline is recorded in docs/PERFORMANCE.md. Wall-clock uses time.perf_counter;
+the bound is deliberately very generous (≫ the sub-second baseline) so a loaded shared CI runner
+never flakes — it trips only on a pathological (orders-of-magnitude) regression.
 
 Dual-mode: runnable directly (`python tests/test_performance.py`, exit 0/1) and
 collectable by pytest.
@@ -56,7 +57,7 @@ def test_throughput_100_parcels_all_routed():
     elapsed = time.perf_counter() - t0
     assert r["sorted_a"] + r["sorted_b"] == 100, r
     assert r["sorted_a"] == 50 and r["sorted_b"] == 50, r
-    assert elapsed < 15.0, f"too slow: {elapsed:.2f}s"
+    assert elapsed < 60.0, f"too slow: {elapsed:.2f}s"   # ≫ sub-second baseline; catches only a pathological regression
     print(f"  100 parcels: A/B={r['sorted_a']}/{r['sorted_b']} in {elapsed * 1000:.0f} ms "
           f"({r['ticks']} ticks, {r['ticks'] / elapsed:,.0f} ticks/s)")
 

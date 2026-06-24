@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/aydogandagidir/conveyor-sorting-twin/actions/workflows/verify.yml/badge.svg)](https://github.com/aydogandagidir/conveyor-sorting-twin/actions/workflows/verify.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](pyproject.toml)
+[![Python 3.9–3.13](https://img.shields.io/badge/python-3.9%E2%80%933.13-blue.svg)](pyproject.toml)
 [![runtime deps: stdlib only](https://img.shields.io/badge/runtime%20deps-stdlib%20only-success.svg)](#quickstart)
-[![live demo report](https://img.shields.io/badge/live-demo%20report-8a2be2.svg)](https://aydogandagidir.github.io/conveyor-sorting-twin/)
+[![live demo](https://img.shields.io/badge/live-demo-8a2be2.svg)](https://aydogandagidir.github.io/conveyor-sorting-twin/)
 
 [![OpenLogiTwin web HMI — ANSI/ISA-101 high-performance operator console](web/hero.svg)](https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/)
 
@@ -12,7 +12,7 @@
 
 A **narrow, demo-ready, technically credible** intralogistics digital twin: virtual parcels
 ride a conveyor, photo-eyes detect them, a decoded barcode drives a diverter, **PLC logic**
-controls the outputs over **real Modbus TCP**, an HMI/SCADA can monitor it, and telemetry
+controls the outputs over **real Modbus TCP**, an **HMI** can monitor it, and telemetry
 records throughput and faults.
 
 Not a generic factory simulator, not a Factory I/O clone — a focused, verifiable slice of
@@ -27,8 +27,8 @@ warehouse automation you can run, test, and extend.
   bit-reproducible; CI asserts identical re-runs.
 - **Honest engineering** — stubs are named `stub` with TODO criteria, decisions live in [`adr/`](adr),
   nothing is faked. Optional integrations (pymodbus, OpenPLC, FUXA, Godot) degrade/skip cleanly.
-- **Tested & green** — 31 dual-mode test files run by one stdlib command and a
-  Python 3.9–3.13 × Ubuntu/Windows CI matrix.
+- **Tested & green** — **112 tests pass** (7 skip without optional backends) across 32 dual-mode
+  test files, run by one stdlib command and a Python 3.9–3.13 × Ubuntu/Windows CI matrix.
 - **Browser HMI (ANSI/ISA-101)** — a zero-install, high-performance web operator console:
   replays deterministic traces, or goes **live** over a stdlib WebSocket to drive the running twin.
 
@@ -53,6 +53,12 @@ python -m openlogitwin demo        # run every scenario → telemetry/exports/de
 ```
 `python -m openlogitwin <command>` is the front door (`hmi` · `demo` · `scenarios` · `export` · `plc` · `test`); each also runs directly as `python scripts/<name>.py`. The core needs **no third-party packages** (Python 3.9+); `pip install -e .` adds an `openlogitwin` console command (`pytest` / `pymodbus` are optional dev extras).
 
+**Don't want to clone?** Install straight from GitHub — the wheel is self-contained:
+```bash
+pip install git+https://github.com/aydogandagidir/conveyor-sorting-twin
+openlogitwin            # ▶ same web HMI, no repo checkout
+```
+
 **New here?** Walk through the [**5-minute tour**](GETTING_STARTED.md) → run it, drive the HMI, go live.
 
 ## Status
@@ -65,7 +71,7 @@ python -m openlogitwin demo        # run every scenario → telemetry/exports/de
 | 3 — Productization | demo + report, deployment, sample OpenPLC ST, training docs | ✅ |
 | Web HMI (V0–V3) | ISA-101 browser console: trace replay + live WebSocket mode | ✅ |
 
-Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md).
+Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`](docs/CHANGELOG.md) · [releases](https://github.com/aydogandagidir/conveyor-sorting-twin/releases).
 
 ## Repository layout
 ```
@@ -79,14 +85,14 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 ├── hmi/fuxa/           # FUXA tag list + project generator + integration guide
 ├── web/hmi/            # ISA-101 web HMI (trace replay + live WebSocket) + Pages landing
 ├── deployment/         # Dockerfile + profiled docker-compose + .env.example
-├── tests/              # 31 dual-mode test files (run directly or via pytest)
+├── tests/              # 32 dual-mode test files (run directly or via pytest)
 ├── openlogitwin/       # thin CLI front door: python -m openlogitwin (+ `openlogitwin` via pip -e)
 ├── scripts/            # start (launcher), run_tests, run_full_demo, scenario_manager, generators
 └── docs/  adr/  sprints/
 ```
 
 ## Run it for real
-- **Web HMI (ISA-101)** — `python scripts/export_trace.py` then `python -m http.server --directory web 8099` → open `/hmi/`. Live mode: `python scripts/hmi_server.py` and click **Go live**. See [`web/hmi/README.md`](web/hmi/README.md), or the hosted replay at [the live HMI](https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/).
+- **Web HMI (ISA-101)** — fastest is `python -m openlogitwin`; for the manual export → serve → live recipe and flags, see the [5-minute tour](GETTING_STARTED.md) and [`web/hmi/README.md`](web/hmi/README.md), or the [hosted replay](https://aydogandagidir.github.io/conveyor-sorting-twin/hmi/).
 - **Soft-PLC over Modbus** — `python scripts/run_soft_plc.py`, or `docker compose -f deployment/docker-compose.yml --profile full up --build`.
 - **HMI (FUXA)** — [`hmi/fuxa/INTEGRATION.md`](hmi/fuxa/INTEGRATION.md).
 - **Real PLC** — load [`plc/examples/*.st`](plc/examples) into OpenPLC Runtime v3.

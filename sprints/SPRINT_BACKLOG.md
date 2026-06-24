@@ -1,6 +1,7 @@
 # OpenLogiTwin — Sprint Backlog
 
-Updated as implementation evolves (Development Rule 10).
+> **Historical planning log**, frozen around v0.6.0. For current project status and what's next,
+> see [`docs/ROADMAP.md`](../docs/ROADMAP.md) and [`docs/CHANGELOG.md`](../docs/CHANGELOG.md).
 
 ## Done — Phase 0 (PoC Connectivity)
 - [x] Repo structure + scaffolding.

@@ -28,7 +28,8 @@ python scripts/run_soft_plc.py          # listens on 127.0.0.1:15502
 OLTWIN_PORT=15600 python scripts/run_soft_plc.py
 ```
 Any Modbus TCP master can then connect (the gateway, a SCADA, or a poll tool).
-This is the STUB endpoint that real OpenPLC will replace in Phase 1.
+This is the soft-PLC stand-in (ADR-0002) — a deterministic test oracle; a real OpenPLC Runtime v3
+was verified equivalent in 0.5.0 (see [`plc/examples/README.md`](../plc/examples/README.md)).
 
 ## Tag map (quick reference)
 | Tag                   | Dir         | Modbus table     | Addr |

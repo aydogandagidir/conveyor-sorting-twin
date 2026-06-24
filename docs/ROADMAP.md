@@ -23,7 +23,7 @@ Status legend: ✅ done & verified · 🟡 in progress · ⬜ planned · 🔒 de
 - **Track A / v0.4.0** — hardening & integration (see below): MQTT-from-CLI, scenario gallery,
   control robustness, barcode simulator, performance baseline, Pages landing, OPC UA full loop.
 - **GitHub Pages** — project landing + auto-published demo report: https://aydogandagidir.github.io/conveyor-sorting-twin/
-- 31 test files green (pytest 109 passed, 7 optional backend skips); CI matrix Python 3.9/3.11/3.13 × Ubuntu/Windows.
+- 32 test files green (pytest 112 passed, 7 optional backend skips); CI matrix Python 3.9/3.11/3.13 × Ubuntu/Windows.
 
 ## Track A — hardening & integration (done in v0.4.0)
 Each landed via branch → PR → CI → merge.

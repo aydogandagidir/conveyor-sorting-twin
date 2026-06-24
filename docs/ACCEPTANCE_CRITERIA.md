@@ -1,7 +1,7 @@
 # OpenLogiTwin — Acceptance Criteria
 
 This document tracks acceptance criteria per phase. It is updated as
-implementation evolves (Development Rule 10).
+implementation evolves.
 
 Legend: `[x]` met & verified · `[~]` partial · `[ ]` not started.
 
@@ -120,7 +120,7 @@ CI activates on first git push.
 ### Verified
 ```
 python scripts/run_tests.py     # all test files -> SUITE GREEN
-python -m pytest tests/ -q      # green (pytest 109 passed, 7 skipped at time of writing)
+python -m pytest tests/ -q      # green (pytest 112 passed, 7 skipped at time of writing)
 ```
 
 ---

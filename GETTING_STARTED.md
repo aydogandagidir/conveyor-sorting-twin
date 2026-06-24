@@ -13,7 +13,7 @@ from clone to a running operator console, then through what you're looking at.
   `paho-mqtt` for the dev extras (`pip install -e ".[dev]"`).
 
 ## 1 · Run it
-Pick whichever fits — all four land you at the same HMI.
+Pick whichever fits — all five land you at the same HMI.
 
 ```bash
 git clone https://github.com/aydogandagidir/conveyor-sorting-twin.git
@@ -21,6 +21,7 @@ cd conveyor-sorting-twin
 
 python -m openlogitwin                 # exports traces, serves the HMI + live twin, opens the browser
 ```
+- **No clone at all:** `pip install git+https://github.com/aydogandagidir/conveyor-sorting-twin` then `openlogitwin` (the wheel is self-contained).
 - **Console command:** `pip install -e .` then just `openlogitwin`.
 - **Docker (turnkey):** `docker compose -f deployment/docker-compose.yml --profile demo up --build`
   → open <http://localhost:8099/hmi/>.

@@ -68,7 +68,7 @@
       <a class="cta ghost" href="https://github.com/aydogandagidir/conveyor-sorting-twin">★ GitHub repository</a>
     </div>
     <p class="note">The HMI and demo report are regenerated from the scenario suite on every push to <code>main</code>.</p>
-    <div class="hero"><img src="hero.svg" alt="OpenLogiTwin web HMI — ANSI/ISA-101 high-performance operator console" loading="lazy"></div>
+    <div class="hero"><img src="hero.svg" alt="OpenLogiTwin web HMI — ANSI/ISA-101 high-performance operator console"></div>
   </div>
 </header>
 
@@ -95,8 +95,8 @@
         <p>Every cycle, sort, fault and state change logged to SQLite with CSV/JSON export and an
           optional live MQTT sink.</p></div>
       <div class="card"><div class="ic">✅</div><h3>Tested &amp; cheap</h3>
-        <p>31 dual-mode test files; CI matrix across Python 3.9–3.13 on Ubuntu &amp; Windows. The core
-          needs zero third-party packages.</p></div>
+        <p><strong>112 tests pass</strong> (7 skip without optional deps) across 32 dual-mode test files;
+          CI matrix across Python 3.9–3.13 on Ubuntu &amp; Windows. The core needs zero third-party packages.</p></div>
     </div>
   </div>
 </section>
@@ -104,12 +104,15 @@
 <section>
   <div class="wrap">
     <h2>Quickstart</h2>
-    <pre><code>git clone https://github.com/aydogandagidir/conveyor-sorting-twin
-cd conveyor-sorting-twin
+    <pre><code>pip install git+https://github.com/aydogandagidir/conveyor-sorting-twin
+openlogitwin              # ▶ launch the web HMI (replay + live)
 
-python scripts/run_tests.py              # the full suite (stdlib only)
-python scripts/scenario_manager.py run-all   # run every scenario with expectations
-python scripts/run_full_demo.py --export-dir=_site   # build this demo report</code></pre>
+# or from a clone — no install:
+git clone https://github.com/aydogandagidir/conveyor-sorting-twin
+cd conveyor-sorting-twin
+python -m openlogitwin           # the web HMI
+python -m openlogitwin test      # full suite → SUITE GREEN
+python -m openlogitwin demo      # every scenario → demo report</code></pre>
   </div>
 </section>
 

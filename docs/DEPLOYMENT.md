@@ -6,12 +6,15 @@ OpenLogiTwin runs two ways: **local Python** (zero dependencies) or **Docker Com
 ## Profiles
 | Profile | Services | Use |
 |---------|----------|-----|
+| `demo` | web HMI (launcher) | **turnkey browser demo** — open <http://localhost:8099/hmi/> |
 | `minimal` | soft-PLC | Modbus TCP connectivity endpoint |
 | `standard` | soft-PLC | + file-based telemetry (no extra container) |
-| `full` | soft-PLC + FUXA | HMI demo |
+| `full` | soft-PLC + FUXA + web HMI | full stack (Modbus + FUXA + the ISA-101 HMI) |
 | `integration` | Node-RED | optional flow integration |
 
 ```bash
+docker compose -f deployment/docker-compose.yml --profile demo up --build   # turnkey web HMI
+# …or the full stack:
 cp deployment/.env.example deployment/.env      # adjust ports / cell
 docker compose -f deployment/docker-compose.yml --profile full up --build
 ```
