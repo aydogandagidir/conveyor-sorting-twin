@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "OpenLogiTwin — Conveyor Sorting Cell Digital Twin"
+message: "If you use this project, please cite it using this metadata."
+type: software
+authors:
+  - family-names: "Dağıdır"
+    given-names: "Aydoğan"
+repository-code: "https://github.com/aydogandagidir/conveyor-sorting-twin"
+url: "https://aydogandagidir.github.io/conveyor-sorting-twin/"
+abstract: >-
+  A narrow, demo-ready, technically credible digital twin of a conveyor sorting cell for PLC
+  training and virtual commissioning: real Modbus TCP / OPC UA / MQTT, a deterministic plant
+  model, a swappable soft-PLC, and an ANSI/ISA-101 high-performance web HMI.
+license: MIT
+version: "0.7.1"
+date-released: "2026-06-22"
+keywords:
+  - digital-twin
+  - intralogistics
+  - virtual-commissioning
+  - plc
+  - modbus
+  - opc-ua
+  - mqtt
+  - iso-isa-101

@@ -5,4 +5,4 @@ This is a thin entry-point package: the runtime lives in the repo's source dirs
 provides one memorable front door — `python -m openlogitwin` — and a console script
 (`openlogitwin`) when installed editable (`pip install -e .`).
 """
-__version__ = "0.7.0"
+__version__ = "0.7.1"

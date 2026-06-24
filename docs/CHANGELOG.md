@@ -3,14 +3,22 @@
 All notable changes to OpenLogiTwin. Grouped by development phase (the project predates
 formal release tags). Dates are UTC.
 
-## [Unreleased]
+## [0.7.1] — 2026-06-22
 
 ### Added
 - **Self-contained wheel** (V5.5): `setup.py` vendors the runtime source dirs into
   `openlogitwin/_bundled/` at build time, so a `pip install`ed `openlogitwin` runs without the repo
-  — verified end to end (a clean-venv wheel install runs `openlogitwin export` from the bundled
-  runtime). `PUBLISHING.md` documents `python -m build` + `twine upload` (PyPI upload needs a
-  maintainer account). `tests/test_packaging.py` guards the build config.
+  — including `pip install git+https://github.com/aydogandagidir/conveyor-sorting-twin`. Verified
+  end to end in a clean venv. `PUBLISHING.md` documents `python -m build` + `twine upload` (the PyPI
+  upload needs a maintainer account). `tests/test_packaging.py` guards the build config.
+- **ADR index** (`adr/README.md`) and a `CITATION.cff`.
+
+### Changed
+- `pyproject` + `openlogitwin.__version__` → 0.7.1.
+- Docs polished to world-class: `pip install git+…` documented across README / landing /
+  getting-started; the landing Quickstart now leads with the unified CLI; the deployment profile
+  table gained the `demo` profile; a stale `CONTRIBUTING.md` reference and the changelog's V5.5
+  status were fixed; test counts refreshed to 32 files / 112 passed. No code-behaviour change.
 
 ## [0.7.0] — 2026-06-22
 
@@ -34,8 +42,7 @@ a running operator console — with a unified CLI, an onboarding tour, and a REA
 - `pyproject` + `openlogitwin.__version__` → 0.7.0. No plant/behaviour change; SUITE 31 files green.
 
 ### Note
-- Self-contained PyPI publishing (bundling the source dirs under the package) is the remaining
-  packaging step (V5.5); `python -m openlogitwin` and `pip install -e .` work today from a clone.
+- The self-contained wheel — so `pip install` works without a clone — landed next, in 0.7.1.
 
 ## [0.6.0] — 2026-06-22
 

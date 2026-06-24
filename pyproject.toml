@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "openlogitwin"
-version = "0.7.0"
+version = "0.7.1"
 description = "OpenLogiTwin — conveyor sorting cell digital twin (intralogistics PLC training / virtual commissioning)"
 requires-python = ">=3.9"
 # Phase 0 and Phase 1 require NO third-party runtime dependencies (stdlib only).
@@ -23,13 +23,14 @@ dev = [
 # Tested on Python 3.9, 3.11, 3.13 (see .github/workflows/verify.yml).
 
 [project.scripts]
-# Console entry point for editable / source installs (`pip install -e .` from a clone).
-# A self-contained PyPI wheel that bundles the source dirs under the package is future work (V5.5).
+# Console command available after any install. A `pip install` / wheel build vendors the runtime
+# under openlogitwin/_bundled/ (see setup.py), so the installed command is self-contained.
 openlogitwin = "openlogitwin.cli:main"
 
 [tool.setuptools]
-# The runtime lives in the repo's (hyphenated, non-importable) source dirs; the only Python
-# package is the thin `openlogitwin` CLI front door — don't let setuptools auto-discover the rest.
+# The only declared package is the thin `openlogitwin` CLI front door; the runtime's (hyphenated,
+# non-importable) source dirs are bundled into openlogitwin/_bundled/ at build time by setup.py
+# (see PUBLISHING.md). Don't let setuptools auto-discover the source dirs.
 packages = ["openlogitwin"]
 
 [tool.pytest.ini_options]
