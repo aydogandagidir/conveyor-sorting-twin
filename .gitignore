@@ -6,6 +6,11 @@ __pycache__/
 venv/
 .pytest_cache/
 
+# Packaging build artifacts (wheel/sdist; _bundled is vendored at build time — see setup.py)
+build/
+dist/
+openlogitwin/_bundled/
+
 # Telemetry artifacts (databases + generated exports)
 *.db
 *.sqlite

@@ -3,6 +3,15 @@
 All notable changes to OpenLogiTwin. Grouped by development phase (the project predates
 formal release tags). Dates are UTC.
 
+## [Unreleased]
+
+### Added
+- **Self-contained wheel** (V5.5): `setup.py` vendors the runtime source dirs into
+  `openlogitwin/_bundled/` at build time, so a `pip install`ed `openlogitwin` runs without the repo
+  — verified end to end (a clean-venv wheel install runs `openlogitwin export` from the bundled
+  runtime). `PUBLISHING.md` documents `python -m build` + `twine upload` (PyPI upload needs a
+  maintainer account). `tests/test_packaging.py` guards the build config.
+
 ## [0.7.0] — 2026-06-22
 
 Productization release: the twin is now **turnkey** — one command (or one container) from clone to

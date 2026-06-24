@@ -104,6 +104,7 @@ Roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md) · changelog: [`docs/CHANGELOG.md`
 | Performance | [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) |
 | Decisions (ADRs) | [`adr/`](adr) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| Publishing (PyPI) | [`PUBLISHING.md`](PUBLISHING.md) — build a self-contained wheel + upload |
 
 ## License
 [MIT](LICENSE) — © 2026 OpenLogiTwin contributors.

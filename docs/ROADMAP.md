@@ -74,5 +74,7 @@ branch → PR → CI → merge.
   Docker; HMI + live twin in one container).
 - ✅ **V5.4 · Onboarding** — `GETTING_STARTED.md` (5-minute tour) + an ANSI/ISA-101 hero
   (`web/hero.svg`) leading the README + landing.
-- ⬜ **V5.5 · Self-contained PyPI wheel + publish** — bundle the source dirs under the package so
-  `pip install openlogitwin` works from PyPI (a focused restructure + a PyPI account).
+- ✅ **V5.5 · Self-contained wheel** — `setup.py` vendors the runtime into `openlogitwin/_bundled/`
+  at build time, so `pip install openlogitwin` runs without the repo (verified in a clean venv).
+  Build with `python -m build`; the PyPI **upload** is the maintainer's step (needs an account) —
+  see [`PUBLISHING.md`](../PUBLISHING.md).
